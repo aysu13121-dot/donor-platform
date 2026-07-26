@@ -10,11 +10,11 @@ def home():
 def get_donors():
     donors = [
         {"id": 1, "name": "Aysu", "blood_type": "A+"},
-        {"id": 2, "name": "Amin", "blodd_type": "O-"}
+        {"id": 2, "name": "Amin", "blood_type": "O-"}
     ]
     return jsonify(donors)
 @app.route("/api/signup", methods=["POST"])
-def singup():
+def signup():
     data = request.get_json()
     name = data.get("name")
     email = data.get("email")
