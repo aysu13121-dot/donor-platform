@@ -27,7 +27,6 @@ def init_db():
     ''')
     conn.commit()
 
-    # İlkin nümunə donor məlumatları
     count = cursor.execute('SELECT COUNT(*) FROM users').fetchone()[0]
     if count == 0:
         seed_donors = [
@@ -60,7 +59,6 @@ def create_user(email, password, full_name=None, blood_type=None, city=None, pho
         user_id = cursor.lastrowid
         return get_user_by_id(user_id)
     except sqlite3.IntegrityError:
-        conn.close()
         return None
     finally:
         conn.close()
@@ -88,14 +86,14 @@ def get_all_donors(blood_type=None, city=None):
     cursor = conn.cursor()
     query = "SELECT id, email, full_name, blood_type, city, phone, role, created_at FROM users WHERE role = 'donor'"
     params = []
-    
+
     if blood_type:
         query += " AND blood_type = ?"
         params.append(blood_type)
     if city:
         query += " AND city = ?"
         params.append(city)
-        
+
     donors = cursor.execute(query, params).fetchall()
     conn.close()
     return [dict(d) for d in donors]
