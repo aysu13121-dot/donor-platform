@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import './AuthPage.css'
 
 export default function LoginPage() {
   const [form, setForm]       = useState({ email: '', password: '' })
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const navigate  = useNavigate()
+  const { t } = useLanguage()
 
   const handleChange = e =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -23,13 +25,14 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error || 'Giriş zamanı xəta baş verdi.')
+        setError(data.error || t.login.serverErr)
       } else {
-        localStorage.setItem('token', data.token)
+        localStorage.setItem('token',    data.token)
+        localStorage.setItem('userName', data.user?.full_name || data.user?.email || 'Donor')
         navigate('/')
       }
     } catch {
-      setError('Server ilə əlaqə qurmaq mümkün olmadı.')
+      setError(t.login.serverErr)
     } finally {
       setLoading(false)
     }
@@ -39,35 +42,31 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card">
         <Link to="/" className="auth-logo">🩸 Qan<strong>Donoru</strong></Link>
-        <h1 className="auth-title">Xoş gəldiniz</h1>
-        <p className="auth-sub">Hesabınıza daxil olun</p>
+        <h1 className="auth-title">{t.login.title}</h1>
+        <p className="auth-sub">{t.login.sub}</p>
 
         {error && <div className="auth-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">E-poçt</label>
-            <input
-              id="email" type="email" name="email"
+            <label htmlFor="email">{t.login.email}</label>
+            <input id="email" type="email" name="email"
               placeholder="ad@example.com"
-              value={form.email} onChange={handleChange} required
-            />
+              value={form.email} onChange={handleChange} required />
           </div>
           <div className="form-group">
-            <label htmlFor="password">Şifrə</label>
-            <input
-              id="password" type="password" name="password"
+            <label htmlFor="password">{t.login.password}</label>
+            <input id="password" type="password" name="password"
               placeholder="••••••••"
-              value={form.password} onChange={handleChange} required
-            />
+              value={form.password} onChange={handleChange} required />
           </div>
           <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-            {loading ? 'Gözləyin...' : 'Daxil ol'}
+            {loading ? t.login.loading : t.login.btn}
           </button>
         </form>
 
         <p className="auth-switch">
-          Hesabınız yoxdur? <Link to="/signup">Qeydiyyatdan keçin</Link>
+          {t.login.switch} <Link to="/signup">{t.login.switchLink}</Link>
         </p>
       </div>
     </div>

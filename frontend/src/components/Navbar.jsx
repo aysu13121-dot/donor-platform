@@ -1,10 +1,24 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../context/LanguageContext'
 import './Navbar.css'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const location = useLocation()
+  const location  = useLocation()
+  const navigate  = useNavigate()
+  const { lang, t, toggle } = useLanguage()
+
+  const token    = localStorage.getItem('token')
+  const userName = localStorage.getItem('userName')
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userName')
+    setMenuOpen(false)
+    navigate('/')
+    window.location.reload()
+  }
 
   return (
     <nav className="navbar">
@@ -16,20 +30,34 @@ export default function Navbar() {
         </Link>
 
         <ul className="navbar__links">
-          <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>Ana Səhifə</Link></li>
-          <li><a href="#how-it-works">Necə İşləyir</a></li>
-          <li><a href="#blood-types">Qan Qrupları</a></li>
+          <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>{t.nav.home}</Link></li>
+          <li><a href="#how-it-works">{t.nav.how}</a></li>
+          <li><a href="#blood-types">{t.nav.types}</a></li>
         </ul>
 
         <div className="navbar__actions">
-          <Link to="/login" className="btn-outline navbar__login">Daxil ol</Link>
-          <Link to="/signup" className="btn-primary">Qeydiyyat</Link>
+          <button className="lang-toggle" onClick={toggle}>
+            {lang === 'az' ? 'EN' : 'AZ'}
+          </button>
+          {token ? (
+            <>
+              <span className="navbar__user">👤 {userName || 'Donor'}</span>
+              <button className="btn-outline navbar__login" onClick={handleLogout}>
+                {t.nav.logout}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login"  className="btn-outline navbar__login">{t.nav.login}</Link>
+              <Link to="/signup" className="btn-primary">{t.nav.register}</Link>
+            </>
+          )}
         </div>
 
         <button
-          className={`navbar__burger ${menuOpen ? 'open' : ''}`}
+          className="navbar__burger"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Menyunu aç"
+          aria-label="Toggle menu"
         >
           <span /><span /><span />
         </button>
@@ -37,11 +65,23 @@ export default function Navbar() {
 
       {menuOpen && (
         <div className="navbar__mobile-menu">
-          <Link to="/"           onClick={() => setMenuOpen(false)}>Ana Səhifə</Link>
-          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>Necə İşləyir</a>
-          <a href="#blood-types"  onClick={() => setMenuOpen(false)}>Qan Qrupları</a>
-          <Link to="/login"      onClick={() => setMenuOpen(false)}>Daxil ol</Link>
-          <Link to="/signup" className="btn-primary" onClick={() => setMenuOpen(false)}>Qeydiyyat</Link>
+          <Link to="/"            onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>{t.nav.how}</a>
+          <a href="#blood-types"  onClick={() => setMenuOpen(false)}>{t.nav.types}</a>
+          <button className="lang-toggle lang-toggle--mobile" onClick={() => { toggle(); setMenuOpen(false) }}>
+            {lang === 'az' ? '🇬🇧 English' : '🇦🇿 Azərbaycanca'}
+          </button>
+          {token ? (
+            <>
+              <span className="navbar__user">👤 {userName || 'Donor'}</span>
+              <button className="btn-outline" onClick={handleLogout}>{t.nav.logout}</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login"  onClick={() => setMenuOpen(false)}>{t.nav.login}</Link>
+              <Link to="/signup" className="btn-primary" onClick={() => setMenuOpen(false)}>{t.nav.register}</Link>
+            </>
+          )}
         </div>
       )}
     </nav>
