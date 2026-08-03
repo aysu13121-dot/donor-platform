@@ -1,7 +1,7 @@
 import os
 import datetime
 import functools
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flasgger import Swagger
 import jwt
@@ -11,7 +11,7 @@ import database
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Konfiqurasiya
 SECRET_KEY = os.getenv('SECRET_KEY', 'donor-super-secret-key-change-in-production')
@@ -40,8 +40,8 @@ template = {
     "swagger": "2.0",
     "info": {
         "title": "Qan Donoru Platforması API",
-        "description": "Donor və resipiyentlər üçün RESTful API sənədləşməsi",
-        "version": "1.0.0"
+        "description": "Donor və resipiyentlər üçün RESTful API sənədləşməsi (Sprint 2 - 50% Completion)",
+        "version": "2.0.0"
     },
     "securityDefinitions": {
         "Bearer": {
@@ -101,6 +101,11 @@ def not_found_error(e):
 def internal_error(e):
     return jsonify({'error': 'Daxili server xətası baş verdi.'}), 500
 
+# --- Frontend Veb Tətbiqinin İnteqrasiyası ---
+@app.route('/')
+def serve_frontend():
+    return send_from_directory('static', 'index.html')
+
 # --- API ENDPOINT-LƏRİ ---
 
 @app.route('/api/signup', methods=['POST'])
@@ -142,6 +147,9 @@ def signup():
               type: string
               enum: [donor, recipient]
               example: donor
+            bio:
+              type: string
+              example: Qan verməyə hazıram
     responses:
       201:
         description: İstifadəçi uğurla yaradıldı
@@ -161,6 +169,7 @@ def signup():
     city = data.get('city', '').strip() if data.get('city') else None
     phone = data.get('phone', '').strip() if data.get('phone') else None
     role = data.get('role', 'donor').strip()
+    bio = data.get('bio', '').strip() if data.get('bio') else None
 
     if not email or not password:
         return jsonify({'error': '"email" və "password" xanaları mütləqdir.'}), 400
@@ -179,7 +188,8 @@ def signup():
         blood_type=blood_type,
         city=city,
         phone=phone,
-        role=role
+        role=role,
+        bio=bio
     )
 
     if not user:
@@ -272,6 +282,64 @@ def get_current_user(current_user):
     return jsonify({'user': current_user}), 200
 
 
+# ==============================================================================
+# 🚀 SPRINT 2 ƏLAVƏ EDİLƏN YENİ ENDPOINT-LƏR (YENİLƏNMİŞ HİSSƏ)
+# ==============================================================================
+
+@app.route('/api/me', methods=['PUT'])
+@token_required
+def update_profile(current_user):
+    """
+    İstifadəçi profilini və Donorluq statusunu yeniləmək
+    ---
+    tags:
+      - İstifadəçi Profili
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            full_name:
+              type: string
+            blood_type:
+              type: string
+            city:
+              type: string
+            phone:
+              type: string
+            is_available:
+              type: integer
+              enum: [0, 1]
+            last_donation_date:
+              type: string
+            bio:
+              type: string
+    responses:
+      200:
+        description: Profil uğurla yeniləndi
+    """
+    data = request.get_json(silent=True) or {}
+    updated = database.update_user_profile(
+        user_id=current_user['id'],
+        full_name=data.get('full_name'),
+        blood_type=data.get('blood_type'),
+        city=data.get('city'),
+        phone=data.get('phone'),
+        is_available=data.get('is_available'),
+        last_donation_date=data.get('last_donation_date'),
+        bio=data.get('bio')
+    )
+    if not updated:
+        return jsonify({'error': 'İstifadəçi tapılmadı və ya yenilənmə alınmadı.'}), 404
+
+    updated.pop('password_hash', None)
+    return jsonify({'message': 'Profil uğurla yeniləndi', 'user': updated}), 200
+
+
 @app.route('/api/donors', methods=['GET'])
 def get_donors():
     """
@@ -288,14 +356,371 @@ def get_donors():
         name: city
         type: string
         description: Şəhərə görə süzgəc (nümunə Bakı, Gəncə)
+      - in: query
+        name: is_available
+        type: integer
+        description: Donorluq statusuna görə süzgəc (1 = aktiv, 0 = deaktiv)
     responses:
       200:
         description: Donorların siyahısı
     """
     blood_type = request.args.get('blood_type')
     city = request.args.get('city')
-    donors = database.get_all_donors(blood_type=blood_type, city=city)
+    is_avail_raw = request.args.get('is_available')
+    is_avail = int(is_avail_raw) if is_avail_raw in ('0', '1') else None
+
+    donors = database.get_all_donors(blood_type=blood_type, city=city, is_available=is_avail)
     return jsonify({'donors': donors, 'count': len(donors)}), 200
+
+
+@app.route('/api/donors/<int:donor_id>', methods=['GET'])
+def get_donor_detail(donor_id):
+    """
+    Tək bir Donorun Ətraflı Profili
+    ---
+    tags:
+      - Donor Axtarışı
+    parameters:
+      - in: path
+        name: donor_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Donor məlumatları
+      404:
+        description: Donor tapılmadı
+    """
+    donor = database.get_user_by_id(donor_id)
+    if not donor or donor.get('role') != 'donor':
+        return jsonify({'error': 'Donor tapılmadı.'}), 404
+    donor.pop('password_hash', None)
+    return jsonify({'donor': donor}), 200
+
+
+# --- QAN EHTİYACLARI / TƏCİLİ ELANLAR (BLOOD REQUESTS CRUD) ---
+
+@app.route('/api/requests', methods=['GET'])
+def get_requests():
+    """
+    Qan Ehtiyacı Elanlarının Siyahısı (Filtrasiya İlə)
+    ---
+    tags:
+      - Təcili Qan Ehtiyacları
+    parameters:
+      - in: query
+        name: blood_type
+        type: string
+      - in: query
+        name: city
+        type: string
+      - in: query
+        name: urgency
+        type: string
+        enum: [Urgent, Normal]
+      - in: query
+        name: status
+        type: string
+        enum: [active, fulfilled, cancelled, all]
+      - in: query
+        name: user_id
+        type: integer
+    responses:
+      200:
+        description: Elanların siyahısı
+    """
+    blood_type = request.args.get('blood_type')
+    city = request.args.get('city')
+    urgency = request.args.get('urgency')
+    status = request.args.get('status', 'active')
+    user_id = request.args.get('user_id')
+
+    if status == 'all':
+        status = None
+
+    requests_list = database.get_blood_requests(
+        blood_type=blood_type,
+        city=city,
+        urgency=urgency,
+        status=status,
+        user_id=int(user_id) if user_id else None
+    )
+    return jsonify({'requests': requests_list, 'count': len(requests_list)}), 200
+
+
+@app.route('/api/requests/<int:request_id>', methods=['GET'])
+def get_request_detail(request_id):
+    """
+    Qan Ehtiyacı Elanının Detalları
+    ---
+    tags:
+      - Təcili Qan Ehtiyacları
+    parameters:
+      - in: path
+        name: request_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Elan detalları
+      404:
+        description: Elan tapılmadı
+    """
+    req_item = database.get_blood_request_by_id(request_id)
+    if not req_item:
+        return jsonify({'error': 'Qan ehtiyacı elanı tapılmadı.'}), 404
+    return jsonify({'request': req_item}), 200
+
+
+@app.route('/api/requests', methods=['POST'])
+@token_required
+def create_request(current_user):
+    """
+    Yeni Təcili Qan Ehtiyacı Elanı Yaratmaq
+    ---
+    tags:
+      - Təcili Qan Ehtiyacları
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - patient_name
+            - blood_type
+            - hospital
+            - city
+            - contact_phone
+          properties:
+            patient_name:
+              type: string
+              example: Məmmədov Əli
+            blood_type:
+              type: string
+              example: A+
+            hospital:
+              type: string
+              example: Mərkəzi Qan Bankı
+            city:
+              type: string
+              example: Bakı
+            units_needed:
+              type: integer
+              example: 2
+            urgency:
+              type: string
+              enum: [Urgent, Normal]
+              example: Urgent
+            contact_phone:
+              type: string
+              example: "+994501234567"
+            note:
+              type: string
+              example: Təcili əməliyyat üçündür
+    responses:
+      201:
+        description: Elan uğurla dərci edildi
+      400:
+        description: Əskik məlumatlar var
+    """
+    data = request.get_json(silent=True)
+    if not data or not isinstance(data, dict):
+        return jsonify({'error': 'Sorğu gövdəsi düzgün JSON obyekti olmalıdır.'}), 400
+
+    patient_name = data.get('patient_name', '').strip()
+    blood_type = data.get('blood_type', '').strip()
+    hospital = data.get('hospital', '').strip()
+    city = data.get('city', '').strip()
+    contact_phone = data.get('contact_phone', '').strip()
+    units_needed = data.get('units_needed', 1)
+    urgency = data.get('urgency', 'Urgent').strip()
+    note = data.get('note', '').strip() if data.get('note') else None
+
+    if not patient_name or not blood_type or not hospital or not city or not contact_phone:
+        return jsonify({'error': 'patient_name, blood_type, hospital, city və contact_phone xanaları mütləqdir.'}), 400
+
+    new_req = database.create_blood_request(
+        user_id=current_user['id'],
+        patient_name=patient_name,
+        blood_type=blood_type,
+        hospital=hospital,
+        city=city,
+        units_needed=int(units_needed),
+        urgency=urgency,
+        contact_phone=contact_phone,
+        note=note
+    )
+
+    return jsonify({'message': 'Qan ehtiyacı elanı uğurla yaradıldı', 'request': new_req}), 201
+
+
+@app.route('/api/requests/<int:request_id>', methods=['PUT'])
+@token_required
+def update_request(current_user, request_id):
+    """
+    Elanı Yeniləmək və ya Statusunu "fulfilled" (Tamamlandı) etmək
+    ---
+    tags:
+      - Təcili Qan Ehtiyacları
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: request_id
+        required: true
+        type: integer
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [active, fulfilled, cancelled]
+    responses:
+      200:
+        description: Elan yeniləndi
+      403:
+        description: Bu elanı dəyişməyə icazəniz yoxdur
+    """
+    data = request.get_json(silent=True) or {}
+    updated = database.update_blood_request(
+        request_id=request_id,
+        user_id=current_user['id'],
+        patient_name=data.get('patient_name'),
+        blood_type=data.get('blood_type'),
+        hospital=data.get('hospital'),
+        city=data.get('city'),
+        units_needed=data.get('units_needed'),
+        urgency=data.get('urgency'),
+        contact_phone=data.get('contact_phone'),
+        note=data.get('note'),
+        status=data.get('status')
+    )
+
+    if not updated:
+        return jsonify({'error': 'Elan tapılmadı və ya onu redaktə etməyə səlahiyyətiniz çatmır.'}), 403
+
+    return jsonify({'message': 'Elan uğurla yeniləndi', 'request': updated}), 200
+
+
+@app.route('/api/requests/<int:request_id>', methods=['DELETE'])
+@token_required
+def delete_request(current_user, request_id):
+    """
+    Qan Ehtiyacı Elanını Silmək
+    ---
+    tags:
+      - Təcili Qan Ehtiyacları
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: request_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Elan silindi
+      403:
+        description: Səlahiyyət çatışmır
+    """
+    success = database.delete_blood_request(request_id=request_id, user_id=current_user['id'])
+    if not success:
+        return jsonify({'error': 'Elan tapılmadı və ya silməyə səlahiyyətiniz yoxdur.'}), 403
+    return jsonify({'message': 'Qan ehtiyacı elanı uğurla silindi'}), 200
+
+
+# --- DONOR MÜRACİƏTLƏRİ VƏ TƏKLİFLƏRİ ---
+
+@app.route('/api/requests/<int:request_id>/respond', methods=['POST'])
+@token_required
+def respond_to_request(current_user, request_id):
+    """
+    Donor olaraq elana kömək təklifi göndərmək
+    ---
+    tags:
+      - Donor Müraciətləri
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: request_id
+        required: true
+        type: integer
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Mən bu gün xəstəxanaya gələ bilərəm.
+    responses:
+      201:
+        description: Təklif göndərildi
+    """
+    req_item = database.get_blood_request_by_id(request_id)
+    if not req_item:
+        return jsonify({'error': 'Qan ehtiyacı elanı tapılmadı.'}), 404
+
+    data = request.get_json(silent=True) or {}
+    message = data.get('message', '').strip() if data.get('message') else None
+
+    offer_id = database.create_donation_offer(
+        request_id=request_id,
+        donor_id=current_user['id'],
+        message=message
+    )
+
+    return jsonify({'message': 'Donorluq təklifiniz dərhal elan sahibinə çatdırıldı!', 'offer_id': offer_id}), 201
+
+
+@app.route('/api/requests/<int:request_id>/responses', methods=['GET'])
+@token_required
+def get_request_responses(current_user, request_id):
+    """
+    Elan sahibinin öz elanına gələn donor təkliflərini görməsi
+    ---
+    tags:
+      - Donor Müraciətləri
+    security:
+      - Bearer: []
+    parameters:
+      - in: path
+        name: request_id
+        required: true
+        type: integer
+    responses:
+      200:
+        description: Donor təkliflərinin siyahısı
+    """
+    req_item = database.get_blood_request_by_id(request_id)
+    if not req_item or req_item['user_id'] != current_user['id']:
+        return jsonify({'error': 'Elan tapılmadı və ya baxmağa icazəniz yoxdur.'}), 403
+
+    offers = database.get_offers_for_request(request_id)
+    return jsonify({'offers': offers, 'count': len(offers)}), 200
+
+
+# --- CANLI PLATFORMA STATİSTİKASI ---
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    """
+    Platformanın Canlı Statistika Göstəriciləri
+    ---
+    tags:
+      - Platforma Statistikası
+    responses:
+      200:
+        description: Statistika məlumatları
+    """
+    stats = database.get_platform_stats()
+    return jsonify({'stats': stats}), 200
 
 
 if __name__ == '__main__':
