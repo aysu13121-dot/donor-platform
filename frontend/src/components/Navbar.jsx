@@ -11,6 +11,7 @@ export default function Navbar() {
 
   const token    = localStorage.getItem('token')
   const userName = localStorage.getItem('userName')
+  const isActive = path => location.pathname === path
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -30,9 +31,13 @@ export default function Navbar() {
         </Link>
 
         <ul className="navbar__links">
-          <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>{t.nav.home}</Link></li>
+          <li><Link to="/" className={isActive('/') ? 'active' : ''}>{t.nav.home}</Link></li>
           <li><a href="#how-it-works">{t.nav.how}</a></li>
           <li><a href="#blood-types">{t.nav.types}</a></li>
+          <li><Link to="/donors" className={isActive('/donors') ? 'active' : ''}>{t.nav.donors}</Link></li>
+          <li><Link to="/requests" className={isActive('/requests') ? 'active' : ''}>{t.nav.requests}</Link></li>
+          {token && <li><Link to="/create-request" className={isActive('/create-request') ? 'active' : ''}>{t.nav.createRequest}</Link></li>}
+          {token && <li><Link to="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>{t.nav.dashboard}</Link></li>}
         </ul>
 
         <div className="navbar__actions">
@@ -68,6 +73,10 @@ export default function Navbar() {
           <Link to="/"            onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
           <a href="#how-it-works" onClick={() => setMenuOpen(false)}>{t.nav.how}</a>
           <a href="#blood-types"  onClick={() => setMenuOpen(false)}>{t.nav.types}</a>
+          <Link to="/donors" onClick={() => setMenuOpen(false)}>{t.nav.donors}</Link>
+          <Link to="/requests" onClick={() => setMenuOpen(false)}>{t.nav.requests}</Link>
+          {token && <Link to="/create-request" onClick={() => setMenuOpen(false)}>{t.nav.createRequest}</Link>}
+          {token && <Link to="/dashboard" onClick={() => setMenuOpen(false)}>{t.nav.dashboard}</Link>}
           <button className="lang-toggle lang-toggle--mobile" onClick={() => { toggle(); setMenuOpen(false) }}>
             {lang === 'az' ? '🇬🇧 English' : '🇦🇿 Azərbaycanca'}
           </button>

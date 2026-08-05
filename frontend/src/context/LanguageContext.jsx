@@ -4,7 +4,8 @@ const T = {
   az: {
     nav: {
       home: 'Ana Səhifə', how: 'Necə İşləyir', types: 'Qan Qrupları',
-      login: 'Daxil ol', register: 'Qeydiyyat', logout: 'Çıxış',
+      donors: 'Donorlar', requests: 'Qan Sorğuları', createRequest: 'Sorğu Yarat',
+      dashboard: 'Profil', login: 'Daxil ol', register: 'Qeydiyyat', logout: 'Çıxış',
     },
     hero: {
       eyebrow: 'Azərbaycanın donor şəbəkəsi',
@@ -51,7 +52,8 @@ const T = {
   en: {
     nav: {
       home: 'Home', how: 'How It Works', types: 'Blood Types',
-      login: 'Log in', register: 'Register', logout: 'Log out',
+      donors: 'Donors', requests: 'Requests', createRequest: 'Create Request',
+      dashboard: 'Profile', login: 'Log in', register: 'Register', logout: 'Log out',
     },
     hero: {
       eyebrow: "Azerbaijan's donor network",
