@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 import functools
 from flask import Flask, request, jsonify, send_from_directory
@@ -16,6 +17,10 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 # Konfiqurasiya
 SECRET_KEY = os.getenv('SECRET_KEY', 'donor-super-secret-key-change-in-production')
 app.config['SECRET_KEY'] = SECRET_KEY
+
+app.json.ensure_ascii = False 
+
+EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 # CORS Ayarları (Frontend sorğuları üçün)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -174,6 +179,9 @@ def signup():
     if not email or not password:
         return jsonify({'error': '"email" və "password" xanaları mütləqdir.'}), 400
 
+    if not EMAIL_RE.match(email):
+        return jsonify({'error': 'Düzgün email formatı daxil edin.'}), 400
+
     if len(password) < 4:
         return jsonify({'error': 'Şifrə ən azı 4 simvol olmalıdır.'}), 400
 
@@ -282,9 +290,110 @@ def get_current_user(current_user):
     return jsonify({'user': current_user}), 200
 
 
-# ==============================================================================
-# 🚀 SPRINT 2 ƏLAVƏ EDİLƏN YENİ ENDPOINT-LƏR (YENİLƏNMİŞ HİSSƏ)
-# ==============================================================================
+# SPRINT 2 ƏLAVƏ EDİLƏN YENİ ENDPOINT-LƏR (YENİLƏNMİŞ HİSSƏ)
+
+@app.route('/api/profile', methods=['GET'])
+@token_required
+def get_profile(current_user):
+    """
+    Öz Profilini Görmək
+    ---
+    tags:
+      - İstifadəçi Profili
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: İstifadəçi profili
+      401:
+        description: Token əskikdir və ya keçərsizdir
+    """
+    current_user.pop('password_hash', None)
+    return jsonify({'user': current_user}), 200
+
+
+@app.route('/api/profile', methods=['PUT'])
+@token_required
+def update_profile_endpoint(current_user):
+    """
+    Profili Yeniləmək (ad, şəhər, telefon, qan qrupu və s.)
+    ---
+    tags:
+      - İstifadəçi Profili
+    security:
+      - Bearer: []
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            full_name:
+              type: string
+            blood_type:
+              type: string
+            city:
+              type: string
+            phone:
+              type: string
+            is_available:
+              type: integer
+              enum: [0, 1]
+            last_donation_date:
+              type: string
+            bio:
+              type: string
+    responses:
+      200:
+        description: Profil uğurla yeniləndi
+      400:
+        description: Sorğu gövdəsi düzgün deyil
+      404:
+        description: İstifadəçi tapılmadı
+    """
+    data = request.get_json(silent=True)
+    if data is None or not isinstance(data, dict):
+        return jsonify({'error': 'Sorğu gövdəsi düzgün JSON obyekti olmalıdır.'}), 400
+
+    updated = database.update_user_profile(
+        user_id=current_user['id'],
+        full_name=data.get('full_name'),
+        blood_type=data.get('blood_type'),
+        city=data.get('city'),
+        phone=data.get('phone'),
+        is_available=data.get('is_available'),
+        last_donation_date=data.get('last_donation_date'),
+        bio=data.get('bio')
+    )
+    if not updated:
+        return jsonify({'error': 'İstifadəçi tapılmadı və ya yenilənmə alınmadı.'}), 404
+
+    updated.pop('password_hash', None)
+    return jsonify({'message': 'Profil uğurla yeniləndi', 'user': updated}), 200
+
+
+@app.route('/api/profile', methods=['DELETE'])
+@token_required
+def delete_profile(current_user):
+    """
+    Hesabı Silmək
+    ---
+    tags:
+      - İstifadəçi Profili
+    security:
+      - Bearer: []
+    responses:
+      200:
+        description: Hesab uğurla silindi
+      404:
+        description: İstifadəçi tapılmadı
+    """
+    deleted = database.delete_user(current_user['id'])
+    if not deleted:
+        return jsonify({'error': 'İstifadəçi tapılmadı.'}), 404
+    return jsonify({'message': 'Hesab uğurla silindi'}), 200
+
 
 @app.route('/api/me', methods=['PUT'])
 @token_required
@@ -360,17 +469,51 @@ def get_donors():
         name: is_available
         type: integer
         description: Donorluq statusuna görə süzgəc (1 = aktiv, 0 = deaktiv)
+      - in: query
+        name: page
+        type: integer
+        description: Səhifə nömrəsi (default 1)
+      - in: query
+        name: limit
+        type: integer
+        description: Səhifə başına nəticə sayı (default 10, maksimum 100)
     responses:
       200:
-        description: Donorların siyahısı
+        description: Donorların siyahısı (pagination məlumatı ilə)
+      400:
+        description: page və ya limit düzgün rəqəm deyil
     """
     blood_type = request.args.get('blood_type')
     city = request.args.get('city')
     is_avail_raw = request.args.get('is_available')
     is_avail = int(is_avail_raw) if is_avail_raw in ('0', '1') else None
 
-    donors = database.get_all_donors(blood_type=blood_type, city=city, is_available=is_avail)
-    return jsonify({'donors': donors, 'count': len(donors)}), 200
+    try:
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 10))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'page və limit tam ədəd olmalıdır.'}), 400
+
+    if page < 1 or limit < 1:
+        return jsonify({'error': 'page və limit müsbət ədəd olmalıdır.'}), 400
+    limit = min(limit, 100)
+    offset = (page - 1) * limit
+
+    donors = database.get_all_donors(blood_type=blood_type, city=city, is_available=is_avail,
+                                      limit=limit, offset=offset)
+    total = database.count_donors(blood_type=blood_type, city=city, is_available=is_avail)
+    total_pages = (total + limit - 1) // limit if total else 0
+
+    return jsonify({
+        'donors': donors,
+        'count': len(donors),
+        'pagination': {
+            'page': page,
+            'limit': limit,
+            'total': total,
+            'total_pages': total_pages
+        }
+    }), 200
 
 
 @app.route('/api/donors/<int:donor_id>', methods=['GET'])
