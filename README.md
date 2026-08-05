@@ -32,6 +32,4 @@ Runs on: http://localhost:5173
 | GET | /api/donors | Get list of donors |
 | GET | /api/me | Get current user (auth required) |
 
-## Team
-- Backend: Aysu
-- Frontend: Haji
+
