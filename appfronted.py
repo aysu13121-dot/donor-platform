@@ -76,4 +76,4 @@ def update_profile(user_id):
     return jsonify(u)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
