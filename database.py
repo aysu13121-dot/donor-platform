@@ -105,6 +105,16 @@ def init_db():
             ''', (u_id, p_name, b_type, hosp, city, units, urg, phone, note, status))
         conn.commit()
 
+    demo_email = 'haci4451@gmail.com'
+    demo_user = cursor.execute('SELECT id FROM users WHERE email = ?', (demo_email,)).fetchone()
+    if not demo_user:
+        hashed = generate_password_hash('password123')
+        cursor.execute('''
+            INSERT INTO users (email, password_hash, full_name, blood_type, city, phone, role, is_available, last_donation_date, bio)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (demo_email, hashed, 'Demo Donor', 'A+', 'Bakı', '+994500000000', 'donor', 1, '2026-08-01', 'Local demo account for login testing.'))
+        conn.commit()
+
     conn.close()
 
 def create_user(email, password, full_name=None, blood_type=None, city=None, phone=None, role='donor', is_available=1, bio=None):
