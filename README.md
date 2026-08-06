@@ -31,7 +31,3 @@ Runs on: http://localhost:5173
 | POST | /api/login | Login and receive JWT token |
 | GET | /api/donors | Get list of donors |
 | GET | /api/me | Get current user (auth required) |
-
-## Team
-- Backend: Aysu
-- Frontend: Haji

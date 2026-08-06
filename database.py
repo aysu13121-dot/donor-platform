@@ -163,26 +163,49 @@ def update_user_profile(user_id, full_name=None, blood_type=None, city=None, pho
     conn.close()
     return get_user_by_id(user_id)
 
-def get_all_donors(blood_type=None, city=None, is_available=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    query = "SELECT id, email, full_name, blood_type, city, phone, role, is_available, last_donation_date, bio, created_at FROM users WHERE role = 'donor'"
+def _donor_filters_clause(blood_type=None, city=None, is_available=None):
+    clause = " WHERE role = 'donor'"
     params = []
-    
     if blood_type:
-        query += " AND blood_type = ?"
+        clause += " AND blood_type = ?"
         params.append(blood_type)
     if city:
-        query += " AND city = ?"
+        clause += " AND city = ?"
         params.append(city)
     if is_available is not None:
-        query += " AND is_available = ?"
+        clause += " AND is_available = ?"
         params.append(1 if is_available else 0)
-        
-    query += " ORDER BY id DESC"
+    return clause, params
+
+def delete_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    deleted = cursor.rowcount > 0
+    conn.close()
+    return deleted
+
+def get_all_donors(blood_type=None, city=None, is_available=None, limit=None, offset=0):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    clause, params = _donor_filters_clause(blood_type, city, is_available)
+    query = ("SELECT id, email, full_name, blood_type, city, phone, role, is_available, "
+              "last_donation_date, bio, created_at FROM users") + clause + " ORDER BY id DESC"
+    if limit is not None:
+        query += " LIMIT ? OFFSET ?"
+        params = params + [limit, offset]
     donors = cursor.execute(query, params).fetchall()
     conn.close()
     return [dict(d) for d in donors]
+
+def count_donors(blood_type=None, city=None, is_available=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    clause, params = _donor_filters_clause(blood_type, city, is_available)
+    total = cursor.execute("SELECT COUNT(*) FROM users" + clause, params).fetchone()[0]
+    conn.close()
+    return total
 
 def verify_password(stored_hash, password):
     return check_password_hash(stored_hash, password)
@@ -237,7 +260,8 @@ def get_blood_request_by_id(request_id):
     conn.close()
     return dict(req) if req else None
 
-def update_blood_request(request_id, user_id, patient_name=None, blood_type=None, hospital=None, city=None, status=None):
+def update_blood_request(request_id, user_id, patient_name=None, blood_type=None, hospital=None, city=None,
+                          units_needed=None, urgency=None, contact_phone=None, note=None, status=None):
     conn = get_db_connection()
     cursor = conn.cursor()
     existing = get_blood_request_by_id(request_id)
@@ -249,13 +273,18 @@ def update_blood_request(request_id, user_id, patient_name=None, blood_type=None
     b_type = blood_type if blood_type is not None else existing['blood_type']
     hosp = hospital if hospital is not None else existing['hospital']
     c_city = city if city is not None else existing['city']
+    units = units_needed if units_needed is not None else existing['units_needed']
+    urg = urgency if urgency is not None else existing['urgency']
+    phone = contact_phone if contact_phone is not None else existing['contact_phone']
+    nt = note if note is not None else existing['note']
     st = status if status is not None else existing['status']
 
     cursor.execute('''
         UPDATE blood_requests
-        SET patient_name = ?, blood_type = ?, hospital = ?, city = ?, status = ?
+        SET patient_name = ?, blood_type = ?, hospital = ?, city = ?, units_needed = ?,
+            urgency = ?, contact_phone = ?, note = ?, status = ?
         WHERE id = ? AND user_id = ?
-    ''', (p_name, b_type, hosp, c_city, st, request_id, user_id))
+    ''', (p_name, b_type, hosp, c_city, units, urg, phone, nt, st, request_id, user_id))
     conn.commit()
     conn.close()
     return get_blood_request_by_id(request_id)
@@ -265,8 +294,9 @@ def delete_blood_request(request_id, user_id):
     cursor = conn.cursor()
     cursor.execute('DELETE FROM blood_requests WHERE id = ? AND user_id = ?', (request_id, user_id))
     conn.commit()
+    deleted = cursor.rowcount > 0
     conn.close()
-    return True
+    return deleted
 
 def create_donation_offer(request_id, donor_id, message=None):
     conn = get_db_connection()
@@ -276,6 +306,18 @@ def create_donation_offer(request_id, donor_id, message=None):
     offer_id = cursor.lastrowid
     conn.close()
     return offer_id
+def get_offers_for_request(request_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    offers = cursor.execute('''
+        SELECT do.*, u.full_name as donor_name, u.blood_type, u.city, u.phone
+        FROM donation_offers do
+        JOIN users u ON do.donor_id = u.id
+        WHERE do.request_id = ?
+        ORDER BY do.created_at DESC
+    ''', (request_id,)).fetchall()
+    conn.close()
+    return [dict(o) for o in offers]
 
 def get_offers_for_request(request_id):
     conn = get_db_connection()
