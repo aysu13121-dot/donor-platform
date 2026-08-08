@@ -29,7 +29,7 @@ export default function LoginPage() {
     try {
       const data = await api.post('/api/login', form);
       login(data.token, data.user);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err) {
       setError(err.message || t.login.serverErr);
     } finally {

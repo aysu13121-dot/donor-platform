@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  Activity, ArrowRight, Droplet, HeartHandshake, IdCard, MapPin, Search, UserPlus, Users,
+  Activity, ArrowRight, HeartHandshake, IdCard, MapPin, Search, UserPlus, Users,
 } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
+import HeroIllustration from '@/components/illustrations/HeroIllustration';
 import Navbar from '@/components/Navbar';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { bloodCompatibility, useLanguage } from '@/context/LanguageContext';
@@ -19,6 +21,7 @@ const STEP_ICONS = [UserPlus, IdCard, HeartHandshake];
 export default function LandingPage() {
   const { t, lang } = useLanguage();
   const [stats, setStats] = useState(null);
+  const [selectedType, setSelectedType] = useState('O+');
 
   useEffect(() => {
     let cancelled = false;
@@ -42,43 +45,33 @@ export default function LandingPage() {
     : [];
 
   const bloodTypes = bloodCompatibility(t);
+  const selected = bloodTypes.find((bt) => bt.type === selectedType) || bloodTypes[0];
 
   return (
     <div>
       <Navbar />
 
       {/* HERO */}
-      <section className="relative overflow-hidden bg-background">
-        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 items-center justify-end overflow-hidden pr-[4%] md:flex" aria-hidden="true">
-          {['A+', 'B+', 'O−', 'AB+'].map((bt) => (
-            <span
-              key={bt}
-              className="font-display text-[clamp(80px,13vw,190px)] font-black leading-[0.88] tracking-[-4px] text-primary/[0.045]"
-            >
-              {bt}
-            </span>
-          ))}
-        </div>
-        <div className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
-          <div className="max-w-2xl">
+      <section className="bg-background">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-20 md:grid-cols-2 md:py-28">
+          <div>
             <span className="mb-6 inline-block rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
               {t.hero.eyebrow}
             </span>
-            <h1 className="mb-6 font-display text-5xl font-black leading-[1.08] tracking-tight text-foreground md:text-7xl">
+            <h1 className="mb-6 font-display text-5xl font-black leading-[1.08] tracking-tight text-foreground md:text-6xl">
               {t.hero.h1}
               <br />
               <em className="text-primary not-italic">{t.hero.h1em}</em>
             </h1>
-            <p className="mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground">{t.hero.sub}</p>
+            <p className="mb-10 max-w-md text-lg leading-relaxed text-muted-foreground">{t.hero.sub}</p>
             <div className="flex flex-wrap gap-4">
-              <Button as={Link} href="/signup" size="lg">
-                <Droplet aria-hidden="true" /> {t.hero.cta1}
-              </Button>
+              <Button as={Link} href="/signup" size="lg">{t.hero.cta1}</Button>
               <Button as={Link} href="/#blood-types" variant="outline" size="lg">
                 <Search aria-hidden="true" /> {t.hero.cta2}
               </Button>
             </div>
           </div>
+          <HeroIllustration className="mx-auto hidden w-full max-w-sm md:block" />
         </div>
       </section>
 
@@ -118,39 +111,49 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* BLOOD TYPES */}
+      {/* BLOOD TYPE SELECTOR */}
       <section className="bg-secondary py-24" id="blood-types">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="mb-3 text-center font-display text-3xl font-bold text-foreground md:text-4xl">{t.blood.title}</h2>
-          <p className="mb-14 text-center text-muted-foreground">{t.blood.sub}</p>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="mx-auto max-w-2xl px-6 text-center">
+          <h2 className="mb-3 font-display text-3xl font-bold text-foreground md:text-4xl">{t.blood.title}</h2>
+          <p className="mb-10 text-muted-foreground">{t.blood.sub}</p>
+
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t.blood.selectPrompt}</p>
+          <div className="flex flex-wrap justify-center gap-2.5">
             {bloodTypes.map((bt) => (
-              <Card
+              <button
                 key={bt.type}
+                type="button"
+                onClick={() => setSelectedType(bt.type)}
                 className={cn(
-                  'relative p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md',
-                  bt.tag && 'border-primary ring-1 ring-primary',
+                  'flex size-15 items-center justify-center rounded-2xl font-display text-lg font-black transition-all duration-150',
+                  selectedType === bt.type
+                    ? 'scale-105 bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                    : 'border border-border bg-card text-foreground hover:border-primary hover:text-primary',
                 )}
               >
-                {bt.tag && (
-                  <span className="absolute right-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
-                    {bt.tag}
-                  </span>
-                )}
-                <div className="mb-4 font-display text-4xl font-black text-primary">{bt.type}</div>
-                <div className="flex flex-col gap-2.5">
-                  <div>
-                    <span className="mb-0.5 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.blood.gives}</span>
-                    <span className="text-[13px] font-medium text-foreground">{bt.gives.join(', ')}</span>
-                  </div>
-                  <div>
-                    <span className="mb-0.5 block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t.blood.receives}</span>
-                    <span className="text-[13px] font-medium text-foreground">{bt.receives.join(', ')}</span>
-                  </div>
-                </div>
-              </Card>
+                {bt.type}
+              </button>
             ))}
           </div>
+
+          <Card className="mt-10 p-8 text-left">
+            <div className="mb-5 flex items-center gap-3">
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary font-display text-2xl font-black text-primary-foreground">
+                {selected.type}
+              </span>
+              {selected.tag && <Badge variant="accent">{selected.tag}</Badge>}
+            </div>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t.blood.gives}</p>
+                <p className="text-lg font-semibold text-foreground">{selected.gives.join(', ')}</p>
+              </div>
+              <div>
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t.blood.receives}</p>
+                <p className="text-lg font-semibold text-foreground">{selected.receives.join(', ')}</p>
+              </div>
+            </div>
+          </Card>
         </div>
       </section>
 

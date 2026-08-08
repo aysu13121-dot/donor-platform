@@ -33,7 +33,7 @@ export default function SignupPage() {
     try {
       const data = await api.post('/api/signup', form);
       login(data.token, data.user);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err) {
       setError(err.message || t.signup.serverErr);
     } finally {

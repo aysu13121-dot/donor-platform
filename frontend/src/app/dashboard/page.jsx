@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 
 function DashboardContent() {
   const { t } = useLanguage();
-  const { token, user: authUser, updateUser, logout } = useAuth();
+  const { token, updateUser, logout } = useAuth();
 
   const [user, setUser] = useState(null);
   const [requests, setRequests] = useState([]);
@@ -139,13 +139,12 @@ function DashboardContent() {
 
   const activeCount = requests.filter((r) => r.status === 'active').length;
   const fulfilledCount = requests.filter((r) => r.status === 'fulfilled').length;
-  const displayName = authUser?.full_name || authUser?.email || t.donors.donor;
 
   return (
     <DashboardShell>
       <div className="mb-8">
         <h1 className="mb-1.5 font-display text-2xl font-bold text-foreground md:text-3xl">
-          {t.dashboard.welcome(displayName)}
+          {t.dashboard.overviewTitle}
         </h1>
         <p className="text-sm text-muted-foreground">{t.dashboard.sub}</p>
       </div>

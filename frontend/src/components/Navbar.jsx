@@ -13,8 +13,6 @@ import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { href: '/', key: 'home' },
-  { href: '/#how-it-works', key: 'how' },
-  { href: '/#blood-types', key: 'types' },
   { href: '/donors', key: 'donors' },
   { href: '/requests', key: 'requests' },
 ];
