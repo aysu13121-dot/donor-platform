@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { LogIn } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
+import Button from '@/components/ui/button';
+import { Input, Label } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
@@ -36,38 +38,32 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <BrandLogo className="auth-logo" />
-        <h1 className="auth-title">{t.login.title}</h1>
-        <p className="auth-sub">{t.login.sub}</p>
+    <div className="flex min-h-screen items-center justify-center bg-secondary px-4 py-10">
+      <div className="w-full max-w-[440px] rounded-2xl border border-border bg-card p-10 shadow-md sm:p-12">
+        <BrandLogo className="mb-8 text-[1.1rem]" />
+        <h1 className="mb-2 font-display text-3xl font-bold text-foreground">{t.login.title}</h1>
+        <p className="mb-8 text-sm text-muted-foreground">{t.login.sub}</p>
 
-        {error && <div className="auth-error">{error}</div>}
+        {error && (
+          <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>
+        )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="email">{t.login.email}</label>
-            <input
-              id="email" type="email" name="email"
-              placeholder="ad@example.com"
-              value={form.email} onChange={handleChange} required
-            />
+        <form onSubmit={handleSubmit} className="mb-6 flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="email">{t.login.email}</Label>
+            <Input id="email" type="email" name="email" placeholder="ad@example.com" value={form.email} onChange={handleChange} required />
           </div>
-          <div className="form-group">
-            <label htmlFor="password">{t.login.password}</label>
-            <input
-              id="password" type="password" name="password"
-              placeholder="••••••••"
-              value={form.password} onChange={handleChange} required
-            />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="password">{t.login.password}</Label>
+            <Input id="password" type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} required />
           </div>
-          <button type="submit" className="btn-primary auth-submit" disabled={loading}>
+          <Button type="submit" size="lg" className="w-full justify-center" disabled={loading}>
             <LogIn aria-hidden="true" /> {loading ? t.login.loading : t.login.btn}
-          </button>
+          </Button>
         </form>
 
-        <p className="auth-switch">
-          {t.login.switch} <Link href="/signup">{t.login.switchLink}</Link>
+        <p className="text-center text-sm text-muted-foreground">
+          {t.login.switch} <Link href="/signup" className="font-semibold text-primary hover:underline">{t.login.switchLink}</Link>
         </p>
       </div>
     </div>

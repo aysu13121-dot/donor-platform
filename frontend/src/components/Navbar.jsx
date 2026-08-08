@@ -6,8 +6,18 @@ import { Globe, LogOut, Menu, User, X } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
 import Link from 'next/link';
+import Button from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { cn } from '@/lib/utils';
+
+const NAV_LINKS = [
+  { href: '/', key: 'home' },
+  { href: '/#how-it-works', key: 'how' },
+  { href: '/#blood-types', key: 'types' },
+  { href: '/donors', key: 'donors' },
+  { href: '/requests', key: 'requests' },
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,46 +35,75 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="container navbar__inner">
-        <BrandLogo className="navbar__logo" />
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
+      <div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6">
+        <BrandLogo className="text-[1.2rem]" />
 
-        <ul className="navbar__links">
-          <li><Link href="/" className={isActive('/') ? 'active' : ''}>{t.nav.home}</Link></li>
-          <li><Link href="/#how-it-works">{t.nav.how}</Link></li>
-          <li><Link href="/#blood-types">{t.nav.types}</Link></li>
-          <li><Link href="/donors" className={isActive('/donors') ? 'active' : ''}>{t.nav.donors}</Link></li>
-          <li><Link href="/requests" className={isActive('/requests') ? 'active' : ''}>{t.nav.requests}</Link></li>
+        <ul className="hidden items-center gap-9 lg:flex">
+          {NAV_LINKS.map((link) => (
+            <li key={link.key}>
+              <Link
+                href={link.href}
+                className={cn(
+                  'text-sm font-medium text-muted-foreground transition-colors hover:text-primary',
+                  isActive(link.href) && 'text-primary',
+                )}
+              >
+                {t.nav[link.key]}
+              </Link>
+            </li>
+          ))}
           {isAuthenticated && (
-            <li><Link href="/create-request" className={isActive('/create-request') ? 'active' : ''}>{t.nav.createRequest}</Link></li>
+            <li>
+              <Link
+                href="/create-request"
+                className={cn('text-sm font-medium text-muted-foreground transition-colors hover:text-primary', isActive('/create-request') && 'text-primary')}
+              >
+                {t.nav.createRequest}
+              </Link>
+            </li>
           )}
           {isAuthenticated && (
-            <li><Link href="/dashboard" className={isActive('/dashboard') ? 'active' : ''}>{t.nav.dashboard}</Link></li>
+            <li>
+              <Link
+                href="/dashboard"
+                className={cn('text-sm font-medium text-muted-foreground transition-colors hover:text-primary', isActive('/dashboard') && 'text-primary')}
+              >
+                {t.nav.dashboard}
+              </Link>
+            </li>
           )}
         </ul>
 
-        <div className="navbar__actions">
-          <button type="button" className="lang-toggle" onClick={toggle}>
+        <div className="hidden items-center gap-3 lg:flex">
+          <button
+            type="button"
+            onClick={toggle}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-secondary px-3.5 text-xs font-bold tracking-wide text-foreground transition-colors hover:border-primary hover:text-primary"
+          >
             {lang === 'az' ? 'EN' : 'AZ'}
           </button>
           {isAuthenticated ? (
             <>
-              <span className="navbar__user"><User className="navbar__user-icon" aria-hidden="true" />{user?.full_name || user?.email || 'Donor'}</span>
-              <button type="button" className="btn-outline navbar__login" onClick={handleLogout}>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-[13px] font-semibold text-foreground">
+                <User className="size-3.5 text-primary" aria-hidden="true" />
+                {user?.full_name || user?.email || 'Donor'}
+              </span>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut aria-hidden="true" /> {t.nav.logout}
-              </button>
+              </Button>
             </>
           ) : (
             <>
-              <Link href="/login" className="btn-outline navbar__login">{t.nav.login}</Link>
-              <Link href="/signup" className="btn-primary">{t.nav.register}</Link>
+              <Button as={Link} href="/login" variant="outline" size="sm">{t.nav.login}</Button>
+              <Button as={Link} href="/signup" size="sm">{t.nav.register}</Button>
             </>
           )}
         </div>
 
         <button
           type="button"
-          className="navbar__burger"
+          className="flex size-9 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary lg:hidden"
           onClick={() => setMenuOpen((open) => !open)}
           aria-label="Toggle menu"
         >
@@ -73,31 +112,44 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <div className="navbar__mobile-menu">
-          <Link href="/" onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
-          <Link href="/#how-it-works" onClick={() => setMenuOpen(false)}>{t.nav.how}</Link>
-          <Link href="/#blood-types" onClick={() => setMenuOpen(false)}>{t.nav.types}</Link>
-          <Link href="/donors" onClick={() => setMenuOpen(false)}>{t.nav.donors}</Link>
-          <Link href="/requests" onClick={() => setMenuOpen(false)}>{t.nav.requests}</Link>
-          {isAuthenticated && <Link href="/create-request" onClick={() => setMenuOpen(false)}>{t.nav.createRequest}</Link>}
-          {isAuthenticated && <Link href="/dashboard" onClick={() => setMenuOpen(false)}>{t.nav.dashboard}</Link>}
+        <div className="flex flex-col gap-4 border-t border-border bg-background px-6 py-5 lg:hidden">
+          {NAV_LINKS.map((link) => (
+            <Link key={link.key} href={link.href} onClick={() => setMenuOpen(false)} className="text-base font-medium text-foreground">
+              {t.nav[link.key]}
+            </Link>
+          ))}
+          {isAuthenticated && (
+            <Link href="/create-request" onClick={() => setMenuOpen(false)} className="text-base font-medium text-foreground">
+              {t.nav.createRequest}
+            </Link>
+          )}
+          {isAuthenticated && (
+            <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-base font-medium text-foreground">
+              {t.nav.dashboard}
+            </Link>
+          )}
           <button
             type="button"
-            className="lang-toggle lang-toggle--mobile"
             onClick={() => { toggle(); setMenuOpen(false); }}
+            className="flex w-fit items-center gap-2 rounded-full border border-border bg-secondary px-3.5 py-2 text-sm font-semibold text-foreground"
           >
-            <Globe aria-hidden="true" /> {lang === 'az' ? 'English' : 'Azərbaycanca'}
+            <Globe className="size-4" aria-hidden="true" /> {lang === 'az' ? 'English' : 'Azərbaycanca'}
           </button>
           {isAuthenticated ? (
             <>
-              <span className="navbar__user"><User className="navbar__user-icon" aria-hidden="true" />{user?.full_name || user?.email || 'Donor'}</span>
-              <button type="button" className="btn-outline" onClick={handleLogout}><LogOut aria-hidden="true" /> {t.nav.logout}</button>
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-[13px] font-semibold text-foreground">
+                <User className="size-3.5 text-primary" aria-hidden="true" />
+                {user?.full_name || user?.email || 'Donor'}
+              </span>
+              <Button variant="outline" size="sm" className="w-fit" onClick={handleLogout}>
+                <LogOut aria-hidden="true" /> {t.nav.logout}
+              </Button>
             </>
           ) : (
-            <>
-              <Link href="/login" onClick={() => setMenuOpen(false)}>{t.nav.login}</Link>
-              <Link href="/signup" className="btn-primary" onClick={() => setMenuOpen(false)}>{t.nav.register}</Link>
-            </>
+            <div className="flex gap-3">
+              <Button as={Link} href="/login" variant="outline" size="sm" onClick={() => setMenuOpen(false)}>{t.nav.login}</Button>
+              <Button as={Link} href="/signup" size="sm" onClick={() => setMenuOpen(false)}>{t.nav.register}</Button>
+            </div>
           )}
         </div>
       )}

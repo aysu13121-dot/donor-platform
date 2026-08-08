@@ -2,19 +2,25 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Building2, CheckCircle2, Droplet, MapPin, Save, Trash2, TriangleAlert, XCircle,
+  Activity, Building2, CheckCircle2, ClipboardList, Droplet, MapPin, Save, Trash2,
+  TriangleAlert, XCircle,
 } from 'lucide-react';
 
-import Navbar from '@/components/Navbar';
+import DashboardShell from '@/components/dashboard/DashboardShell';
+import StatCard from '@/components/dashboard/StatCard';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Button from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ApiError, api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 function DashboardContent() {
-  const { t, lang } = useLanguage();
-  const { token, updateUser, logout } = useAuth();
+  const { t } = useLanguage();
+  const { token, user: authUser, updateUser, logout } = useAuth();
 
   const [user, setUser] = useState(null);
   const [requests, setRequests] = useState([]);
@@ -131,138 +137,181 @@ function DashboardContent() {
     }
   }
 
+  const activeCount = requests.filter((r) => r.status === 'active').length;
+  const fulfilledCount = requests.filter((r) => r.status === 'fulfilled').length;
+  const displayName = authUser?.full_name || authUser?.email || t.donors.donor;
+
   return (
-    <div className="dashboard-page">
-      <Navbar />
-      <main className="dashboard-shell container">
-        <header className="dashboard-hero">
-          <div>
-            <span className="dashboard-hero__eyebrow">{t.dashboard.profile}</span>
-            <h1 className="dashboard-hero__title">{t.dashboard.title}</h1>
-            <p className="dashboard-hero__sub">{t.dashboard.sub}</p>
-          </div>
-        </header>
+    <DashboardShell>
+      <div className="mb-8">
+        <h1 className="mb-1.5 font-display text-2xl font-bold text-foreground md:text-3xl">
+          {t.dashboard.welcome(displayName)}
+        </h1>
+        <p className="text-sm text-muted-foreground">{t.dashboard.sub}</p>
+      </div>
 
-        {error && <div className="dashboard-alert dashboard-alert--error">{error}</div>}
-        {requestError && <div className="dashboard-alert dashboard-alert--error">{requestError}</div>}
+      {error && <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>}
+      {requestError && <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{requestError}</div>}
 
-        <section className="dashboard-grid">
-          <article className="auth-card auth-card--wide dashboard-card">
-            <h2 className="auth-title">{t.dashboard.profile}</h2>
-            <p className="auth-sub">{user?.email || ''}</p>
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard icon={ClipboardList} value={requestsLoading ? '–' : requests.length} label={t.dashboard.statTotal} />
+        <StatCard icon={Activity} value={requestsLoading ? '–' : activeCount} label={t.dashboard.statActive} tone="primary" />
+        <StatCard icon={CheckCircle2} value={requestsLoading ? '–' : fulfilledCount} label={t.dashboard.statFulfilled} />
+        <StatCard
+          icon={Droplet}
+          value={loading ? '–' : (form.is_available ? t.dashboard.active : t.dashboard.cancelled)}
+          label={t.dashboard.statDonorStatus}
+          tone={form.is_available ? 'primary' : 'default'}
+        />
+      </div>
 
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <CardTitle>{t.dashboard.profile}</CardTitle>
+            <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
+          </CardHeader>
+          <CardContent>
             {loading ? (
-              <div className="dashboard-state">{t.dashboard.loading}</div>
+              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.loading}</div>
             ) : (
-              <form className="auth-form auth-form--grid dashboard-form" onSubmit={handleSave}>
-                <div className="form-group">
-                  <label htmlFor="full_name">{t.dashboard.fullName}</label>
-                  <input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
+              <form className="flex flex-col gap-4" onSubmit={handleSave}>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="full_name">{t.dashboard.fullName}</Label>
+                  <Input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="blood_type">{t.dashboard.bloodType}</label>
-                  <select id="blood_type" name="blood_type" value={form.blood_type} onChange={handleChange}>
-                    <option value="">{t.dashboard.bloodType}</option>
-                    {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="blood_type">{t.dashboard.bloodType}</Label>
+                    <Select id="blood_type" name="blood_type" value={form.blood_type} onChange={handleChange}>
+                      <option value="">{t.dashboard.bloodType}</option>
+                      {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+                    </Select>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="city">{t.dashboard.city}</Label>
+                    <Select id="city" name="city" value={form.city} onChange={handleChange}>
+                      <option value="">{t.dashboard.city}</option>
+                      {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
+                    </Select>
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="city">{t.dashboard.city}</label>
-                  <select id="city" name="city" value={form.city} onChange={handleChange}>
-                    <option value="">{t.dashboard.city}</option>
-                    {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="phone">{t.dashboard.phone}</Label>
+                  <Input id="phone" name="phone" value={form.phone} onChange={handleChange} />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="phone">{t.dashboard.phone}</label>
-                  <input id="phone" name="phone" value={form.phone} onChange={handleChange} />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="last_donation_date">{t.dashboard.lastDonation}</label>
-                  <input
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="last_donation_date">{t.dashboard.lastDonation}</Label>
+                  <Input
                     id="last_donation_date" name="last_donation_date" type="date"
                     value={form.last_donation_date || ''} onChange={handleChange}
                   />
                 </div>
 
-                <div className="form-group dashboard-toggle">
-                  <label htmlFor="is_available">{t.dashboard.available}</label>
-                  <label className="dashboard-switch">
-                    <input id="is_available" name="is_available" type="checkbox" checked={form.is_available} onChange={handleChange} />
-                    <span>{form.is_available ? t.dashboard.active : t.dashboard.cancelled}</span>
-                  </label>
+                <div className="flex items-center justify-between rounded-lg border border-input px-3.5 py-2.5">
+                  <Label htmlFor="is_available" className="cursor-pointer">{t.dashboard.available}</Label>
+                  <input
+                    id="is_available" name="is_available" type="checkbox"
+                    className="size-4 accent-primary"
+                    checked={form.is_available} onChange={handleChange}
+                  />
                 </div>
 
-                <div className="form-group dashboard-bio">
-                  <label htmlFor="bio">{t.dashboard.bio}</label>
-                  <textarea id="bio" name="bio" rows="4" value={form.bio || ''} onChange={handleChange} />
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="bio">{t.dashboard.bio}</Label>
+                  <Textarea id="bio" name="bio" rows="4" value={form.bio || ''} onChange={handleChange} />
                 </div>
 
-                <button type="submit" className="btn-primary auth-submit auth-submit--full" disabled={saving || loading}>
+                <Button type="submit" className="w-full justify-center" disabled={saving || loading}>
                   <Save aria-hidden="true" /> {saving ? t.dashboard.saving : t.dashboard.save}
-                </button>
+                </Button>
               </form>
             )}
-          </article>
+          </CardContent>
+        </Card>
 
-          <article className="auth-card auth-card--wide dashboard-card dashboard-card--requests">
-            <h2 className="auth-title">{t.dashboard.requests}</h2>
-            <p className="auth-sub">
+        <Card className="xl:col-span-3">
+          <CardHeader>
+            <CardTitle>{t.dashboard.requests}</CardTitle>
+            <p className="text-sm text-muted-foreground">
               {requestsLoading ? t.dashboard.loadingRequests : t.dashboard.requestsCount(requests.length)}
             </p>
-
+          </CardHeader>
+          <CardContent>
             {requestsLoading ? (
-              <div className="dashboard-state">{t.dashboard.loadingRequests}</div>
+              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.loadingRequests}</div>
             ) : requests.length === 0 ? (
-              <div className="dashboard-state">{t.dashboard.noRequests}</div>
+              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.noRequests}</div>
             ) : (
-              <div className="dashboard-requests">
-                {requests.map((item) => (
-                  <article key={item.id} className="dashboard-request">
-                    <div className="dashboard-request__top">
-                      <span className="dashboard-request__blood">{item.blood_type}</span>
-                      <span className={
-                        item.status === 'fulfilled' ? 'dashboard-status dashboard-status--fulfilled'
-                          : item.status === 'cancelled' ? 'dashboard-status dashboard-status--cancelled'
-                            : 'dashboard-status dashboard-status--active'
-                      }>
-                        {item.status === 'fulfilled' ? <CheckCircle2 aria-hidden="true" />
-                          : item.status === 'cancelled' ? <XCircle aria-hidden="true" />
-                            : <TriangleAlert aria-hidden="true" />}
-                        {item.status === 'fulfilled' ? t.dashboard.fulfilled
-                          : item.status === 'cancelled' ? t.dashboard.cancelled
-                            : t.dashboard.active}
-                      </span>
-                    </div>
-
-                    <h3 className="dashboard-request__title">{item.patient_name}</h3>
-                    <div className="dashboard-request__meta">
-                      <span><Building2 aria-hidden="true" /> {t.dashboard.hospital}: {item.hospital}</span>
-                      <span><MapPin aria-hidden="true" /> {t.dashboard.city}: {item.city}</span>
-                      <span><Droplet aria-hidden="true" /> {item.units_needed} {t.dashboard.units}</span>
-                      <span><TriangleAlert aria-hidden="true" /> {t.dashboard.urgency}: {item.urgency}</span>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="btn-outline dashboard-request__delete"
-                      onClick={() => handleDelete(item.id)}
-                      disabled={deleteLoadingId === item.id}
-                    >
-                      <Trash2 aria-hidden="true" /> {t.dashboard.delete}
-                    </button>
-                  </article>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tablePatient}</th>
+                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableLocation}</th>
+                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableStatus}</th>
+                      <th className="pb-3 pl-3 text-right font-semibold">{t.dashboard.tableActions}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {requests.map((item) => (
+                      <tr key={item.id} className="align-top">
+                        <td className="py-3 pr-3">
+                          <p className="font-semibold text-foreground">{item.patient_name}</p>
+                          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Droplet className="size-3 text-primary" aria-hidden="true" /> {item.blood_type}
+                            <span className="mx-1">·</span>
+                            {item.units_needed} {t.dashboard.units}
+                            <span className="mx-1">·</span>
+                            <TriangleAlert className="size-3" aria-hidden="true" /> {item.urgency}
+                          </p>
+                        </td>
+                        <td className="py-3 pr-3 text-muted-foreground">
+                          <p className="flex items-center gap-1"><Building2 className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {item.hospital}</p>
+                          <p className="flex items-center gap-1"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {item.city}</p>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <span
+                            className={cn(
+                              'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase',
+                              item.status === 'fulfilled' && 'bg-secondary text-muted-foreground',
+                              item.status === 'cancelled' && 'bg-secondary text-foreground',
+                              item.status === 'active' && 'bg-accent text-primary',
+                            )}
+                          >
+                            {item.status === 'fulfilled' && <CheckCircle2 aria-hidden="true" />}
+                            {item.status === 'cancelled' && <XCircle aria-hidden="true" />}
+                            {item.status === 'active' && <TriangleAlert aria-hidden="true" />}
+                            {item.status === 'fulfilled' ? t.dashboard.fulfilled
+                              : item.status === 'cancelled' ? t.dashboard.cancelled
+                                : t.dashboard.active}
+                          </span>
+                        </td>
+                        <td className="py-3 pl-3 text-right">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(item.id)}
+                            disabled={deleteLoadingId === item.id}
+                            aria-label={t.dashboard.delete}
+                          >
+                            <Trash2 className="text-muted-foreground hover:text-destructive" aria-hidden="true" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-          </article>
-        </section>
-      </main>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardShell>
   );
 }
 

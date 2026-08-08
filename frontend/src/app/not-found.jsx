@@ -1,14 +1,16 @@
 import Link from 'next/link';
 
+import Button from '@/components/ui/button';
+
 // Next.js-in App Router-i bu faylı bilinməyən hər path üçün avtomatik
 // göstərir - əvvəlki React Router versiyasında 404 route heç tanımlanmamışdı.
 export default function NotFound() {
   return (
-    <div className="not-found-page">
-      <span className="not-found-page__code">404</span>
-      <h1 className="auth-title">Səhifə tapılmadı</h1>
-      <p className="auth-sub">Axtardığınız səhifə mövcud deyil.</p>
-      <Link href="/" className="btn-primary">Ana səhifəyə qayıt</Link>
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-4 px-4 py-10 text-center">
+      <span className="font-display text-6xl font-black text-primary md:text-8xl">404</span>
+      <h1 className="font-display text-2xl font-bold text-foreground">Səhifə tapılmadı</h1>
+      <p className="text-sm text-muted-foreground">Axtardığınız səhifə mövcud deyil.</p>
+      <Button as={Link} href="/">Ana səhifəyə qayıt</Button>
     </div>
   );
 }

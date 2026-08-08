@@ -8,10 +8,14 @@ import {
 } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Select } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 export default function RequestsPage() {
   const router = useRouter();
@@ -80,97 +84,121 @@ export default function RequestsPage() {
   }
 
   return (
-    <div className="requests-page">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <Navbar />
-      <main className="requests-shell container">
-        <header className="requests-hero">
-          <span className="requests-hero__eyebrow">{t.requests.filters}</span>
-          <h1 className="requests-hero__title">{t.requests.title}</h1>
-          <p className="requests-hero__sub">{t.requests.sub}</p>
+      <main className="mx-auto max-w-6xl px-6 pb-18 pt-10">
+        <header className="mb-7 max-w-2xl">
+          <span className="mb-4 inline-flex rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+            {t.requests.filters}
+          </span>
+          <h1 className="mb-3.5 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl">{t.requests.title}</h1>
+          <p className="max-w-xl text-muted-foreground">{t.requests.sub}</p>
         </header>
 
-        <section className="requests-filters" aria-label={t.requests.filters}>
-          <SlidersHorizontal className="filter-bar__icon" aria-hidden="true" />
-          <select value={bloodType} onChange={(e) => setBloodType(e.target.value)}>
+        <Card className="mb-4.5 grid grid-cols-1 gap-3 p-4.5 sm:grid-cols-2 lg:grid-cols-[auto_1fr_1fr_1fr_auto]" aria-label={t.requests.filters}>
+          <SlidersHorizontal className="hidden size-[18px] self-center text-muted-foreground lg:block" aria-hidden="true" />
+          <Select value={bloodType} onChange={(e) => setBloodType(e.target.value)}>
             <option value="">{t.requests.bloodType}: {t.requests.all}</option>
             {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-          </select>
+          </Select>
 
-          <select value={city} onChange={(e) => setCity(e.target.value)}>
+          <Select value={city} onChange={(e) => setCity(e.target.value)}>
             <option value="">{t.requests.city}: {t.requests.all}</option>
             {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
+          </Select>
 
-          <select value={urgency} onChange={(e) => setUrgency(e.target.value)}>
+          <Select value={urgency} onChange={(e) => setUrgency(e.target.value)}>
             <option value="">{t.requests.urgency}: {t.requests.all}</option>
             <option value="Urgent">{t.requests.urgent}</option>
             <option value="Normal">{t.requests.normal}</option>
-          </select>
+          </Select>
 
-          <button type="button" className="btn-outline requests-filters__reset" onClick={resetFilters}>
+          <Button type="button" variant="outline" onClick={resetFilters}>
             <RotateCcw aria-hidden="true" /> {t.requests.reset}
-          </button>
-        </section>
+          </Button>
+        </Card>
 
-        {notice && <div className="requests-alert requests-alert--success">{notice}</div>}
-        {error && <div className="requests-alert requests-alert--error">{error}</div>}
+        {notice && <div className="mb-4.5 rounded-xl border border-border bg-accent px-4.5 py-4 text-sm text-primary">{notice}</div>}
+        {error && <div className="mb-4.5 rounded-xl border border-border bg-secondary px-4.5 py-4 text-sm text-foreground">{error}</div>}
 
-        {loading && <div className="requests-state">{t.requests.loading}</div>}
+        {loading && <div className="rounded-xl border border-border bg-card px-4.5 py-4 text-sm text-muted-foreground shadow-sm">{t.requests.loading}</div>}
 
         {!loading && !error && requests.length === 0 && (
-          <div className="requests-state">{t.requests.empty}</div>
+          <div className="rounded-xl border border-border bg-card px-4.5 py-4 text-sm text-muted-foreground shadow-sm">{t.requests.empty}</div>
         )}
 
         {!loading && requests.length > 0 && (
-          <section className="requests-grid">
+          <section className="grid grid-cols-1 gap-4.5 sm:grid-cols-2 xl:grid-cols-3">
             {requests.map((request) => {
               const phone = request.contact_phone || '';
               const digits = phone.replace(/\D/g, '');
 
               return (
-                <article key={request.id} className="request-card">
-                  <div className="request-card__top">
-                    <span className="request-blood">{request.blood_type || '?'}</span>
-                    <span className={request.urgency === 'Urgent' ? 'request-tag request-tag--urgent' : 'request-tag request-tag--normal'}>
-                      {request.urgency === 'Urgent' ? <AlertTriangle aria-hidden="true" /> : <Info aria-hidden="true" />}
+                <Card key={request.id} className="flex flex-col gap-4 p-5.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex min-h-14 min-w-14 items-center justify-center rounded-xl bg-primary px-3.5 font-display text-lg font-black text-primary-foreground">
+                      {request.blood_type || '?'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide',
+                        request.urgency === 'Urgent' ? 'bg-accent text-primary' : 'bg-secondary text-muted-foreground',
+                      )}
+                    >
+                      {request.urgency === 'Urgent' ? <AlertTriangle className="size-3" aria-hidden="true" /> : <Info className="size-3" aria-hidden="true" />}
                       {request.urgency || t.requests.normal}
                     </span>
                   </div>
 
-                  <h2 className="request-title">{request.patient_name}</h2>
-                  <div className="request-meta">
-                    <span><Building2 aria-hidden="true" /> {t.requests.hospital}: {request.hospital}</span>
-                    <span><MapPin aria-hidden="true" /> {t.requests.city}: {request.city}</span>
-                    <span><Droplet aria-hidden="true" /> {request.units_needed} {t.requests.units}</span>
-                    {request.note && <span className="request-note"><StickyNote aria-hidden="true" /> {request.note}</span>}
+                  <h2 className="text-lg font-extrabold text-foreground">{request.patient_name}</h2>
+                  <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5"><Building2 className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.hospital}: {request.hospital}</span>
+                    <span className="flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.city}: {request.city}</span>
+                    <span className="flex items-center gap-1.5"><Droplet className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {request.units_needed} {t.requests.units}</span>
+                    {request.note && (
+                      <span className="flex items-start gap-1.5 border-l-2 border-primary pl-3 text-foreground">
+                        <StickyNote className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" /> {request.note}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="request-contact"><Phone aria-hidden="true" /> {t.requests.phone}: {phone || '--'}</p>
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                    <Phone className="size-3.5 text-primary" aria-hidden="true" /> {t.requests.phone}: {phone || '--'}
+                  </p>
 
-                  <div className="request-actions">
-                    {phone
-                      ? <a href={`tel:${phone}`} className="btn-outline request-actions__link"><Phone aria-hidden="true" /> {t.requests.call}</a>
-                      : <span className="request-actions__link request-actions__link--muted">{t.requests.call}</span>}
-                    {digits ? (
-                      <a href={`https://wa.me/${digits}`} target="_blank" rel="noreferrer" className="btn-primary request-actions__link request-actions__link--whatsapp">
-                        <MessageCircle aria-hidden="true" /> WhatsApp
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {phone ? (
+                      <a href={`tel:${phone}`} className="flex min-h-11 items-center justify-center gap-1.5 rounded-full border-2 border-border text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary">
+                        <Phone className="size-[18px]" aria-hidden="true" /> {t.requests.call}
                       </a>
                     ) : (
-                      <span className="request-actions__link request-actions__link--muted">WhatsApp</span>
+                      <span className="flex min-h-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-muted-foreground">{t.requests.call}</span>
+                    )}
+                    {digits ? (
+                      <a
+                        href={`https://wa.me/${digits}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-foreground text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                      >
+                        <MessageCircle className="size-[18px]" aria-hidden="true" /> WhatsApp
+                      </a>
+                    ) : (
+                      <span className="flex min-h-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-muted-foreground">WhatsApp</span>
                     )}
                     <button
                       type="button"
-                      className="btn-primary request-actions__button"
                       onClick={() => handleRespond(request.id)}
                       disabled={sendingId === request.id}
+                      className="flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-all hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                      <HeartHandshake aria-hidden="true" />
+                      <HeartHandshake className="size-[18px]" aria-hidden="true" />
                       {isAuthenticated
                         ? (sendingId === request.id ? t.requests.loading : t.requests.donorButton)
                         : t.requests.loginToRespond}
                     </button>
                   </div>
-                </article>
+                </Card>
               );
             })}
           </section>

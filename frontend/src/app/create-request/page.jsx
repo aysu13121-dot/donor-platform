@@ -6,6 +6,9 @@ import { Send } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
@@ -53,76 +56,78 @@ function CreateRequestForm() {
   }
 
   return (
-    <div className="create-request-page">
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
       <Navbar />
-      <main className="create-request-shell">
-        <div className="container create-request-container">
-          <section className="auth-card auth-card--wide create-request-card">
-            <span className="create-request-badge">{t.createRequest.badge}</span>
-            <h1 className="auth-title">{t.createRequest.title}</h1>
-            <p className="auth-sub">{t.createRequest.sub}</p>
+      <main className="mx-auto max-w-3xl px-6 py-9 pb-18">
+        <Card className="p-10 sm:p-12">
+          <span className="mb-4.5 inline-flex rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+            {t.createRequest.badge}
+          </span>
+          <h1 className="mb-2 font-display text-3xl font-bold text-foreground">{t.createRequest.title}</h1>
+          <p className="mb-8 text-sm text-muted-foreground">{t.createRequest.sub}</p>
 
-            {error && <div className="auth-error">{error}</div>}
+          {error && (
+            <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>
+          )}
 
-            <form className="auth-form auth-form--grid" onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="patient_name">{t.createRequest.patientName}</label>
-                <input id="patient_name" name="patient_name" value={form.patient_name} onChange={handleChange} required />
-              </div>
+          <form className="grid grid-cols-1 gap-5 sm:grid-cols-2" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="patient_name">{t.createRequest.patientName}</Label>
+              <Input id="patient_name" name="patient_name" value={form.patient_name} onChange={handleChange} required />
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="blood_type">{t.createRequest.bloodType}</label>
-                <select id="blood_type" name="blood_type" value={form.blood_type} onChange={handleChange} required>
-                  <option value="">{t.createRequest.select}</option>
-                  {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-                </select>
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="blood_type">{t.createRequest.bloodType}</Label>
+              <Select id="blood_type" name="blood_type" value={form.blood_type} onChange={handleChange} required>
+                <option value="">{t.createRequest.select}</option>
+                {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+              </Select>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="hospital">{t.createRequest.hospital}</label>
-                <input id="hospital" name="hospital" value={form.hospital} onChange={handleChange} required />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="hospital">{t.createRequest.hospital}</Label>
+              <Input id="hospital" name="hospital" value={form.hospital} onChange={handleChange} required />
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="city">{t.createRequest.city}</label>
-                <select id="city" name="city" value={form.city} onChange={handleChange} required>
-                  <option value="">{t.createRequest.select}</option>
-                  {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
-                </select>
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="city">{t.createRequest.city}</Label>
+              <Select id="city" name="city" value={form.city} onChange={handleChange} required>
+                <option value="">{t.createRequest.select}</option>
+                {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
+              </Select>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="units_needed">{t.createRequest.unitsNeeded}</label>
-                <input
-                  id="units_needed" name="units_needed" type="number" min="1"
-                  value={form.units_needed} onChange={handleChange} required
-                />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="units_needed">{t.createRequest.unitsNeeded}</Label>
+              <Input
+                id="units_needed" name="units_needed" type="number" min="1"
+                value={form.units_needed} onChange={handleChange} required
+              />
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="urgency">{t.createRequest.urgency}</label>
-                <select id="urgency" name="urgency" value={form.urgency} onChange={handleChange} required>
-                  <option value="Urgent">{t.createRequest.urgent}</option>
-                  <option value="Normal">{t.createRequest.normal}</option>
-                </select>
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="urgency">{t.createRequest.urgency}</Label>
+              <Select id="urgency" name="urgency" value={form.urgency} onChange={handleChange} required>
+                <option value="Urgent">{t.createRequest.urgent}</option>
+                <option value="Normal">{t.createRequest.normal}</option>
+              </Select>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="contact_phone">{t.createRequest.contactPhone}</label>
-                <input id="contact_phone" name="contact_phone" value={form.contact_phone} onChange={handleChange} required />
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="contact_phone">{t.createRequest.contactPhone}</Label>
+              <Input id="contact_phone" name="contact_phone" value={form.contact_phone} onChange={handleChange} required />
+            </div>
 
-              <div className="form-group create-request-note">
-                <label htmlFor="note">{t.createRequest.note}</label>
-                <textarea id="note" name="note" rows="4" value={form.note} onChange={handleChange} />
-              </div>
+            <div className="col-span-full flex flex-col gap-1.5">
+              <Label htmlFor="note">{t.createRequest.note}</Label>
+              <Textarea id="note" name="note" rows="4" value={form.note} onChange={handleChange} />
+            </div>
 
-              <button type="submit" className="btn-primary auth-submit auth-submit--full" disabled={loading}>
-                <Send aria-hidden="true" /> {loading ? t.createRequest.loading : t.createRequest.submit}
-              </button>
-            </form>
-          </section>
-        </div>
+            <Button type="submit" size="lg" className="col-span-full w-full justify-center" disabled={loading}>
+              <Send aria-hidden="true" /> {loading ? t.createRequest.loading : t.createRequest.submit}
+            </Button>
+          </form>
+        </Card>
       </main>
     </div>
   );
