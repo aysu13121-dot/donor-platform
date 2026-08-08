@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Calendar, CheckCircle2, ChevronLeft, ChevronRight, MapPin, RotateCcw, SlidersHorizontal, XCircle,
+  Calendar, CheckCircle2, ChevronLeft, ChevronRight, MapPin, RotateCcw, XCircle,
 } from 'lucide-react';
 
 import ContactActions from '@/components/ContactActions';
+import FilterSelect from '@/components/FilterSelect';
 import Navbar from '@/components/Navbar';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Select } from '@/components/ui/input';
 import Skeleton from '@/components/ui/skeleton';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 export default function DonorsPage() {
   const { t } = useLanguage();
@@ -68,32 +69,39 @@ export default function DonorsPage() {
           <p className="text-sm text-muted-foreground">{t.donors.sub}</p>
         </div>
 
-        <Card className="mb-8 flex flex-wrap items-center gap-3 p-4">
-          <SlidersHorizontal className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <Select className="w-auto" value={bloodType} onChange={(e) => { setBloodType(e.target.value); setPage(1); }}>
-            <option value="">{t.donors.allBloodTypes}</option>
-            {BLOOD_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
-          </Select>
+        <div className="mb-8 flex flex-wrap items-center gap-6 rounded-lg border border-border p-4">
+          <FilterSelect
+            value={bloodType}
+            onChange={(val) => { setBloodType(val); setPage(1); }}
+            options={[{ value: '', label: t.donors.allBloodTypes }, ...BLOOD_TYPES.map((b) => ({ value: b, label: b }))]}
+          />
 
-          <Select className="w-auto" value={city} onChange={(e) => { setCity(e.target.value); setPage(1); }}>
-            <option value="">{t.donors.allCities}</option>
-            {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </Select>
+          <FilterSelect
+            value={city}
+            onChange={(val) => { setCity(val); setPage(1); }}
+            options={[{ value: '', label: t.donors.allCities }, ...CITIES.map((c) => ({ value: c, label: c }))]}
+          />
 
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
-            <input
-              type="checkbox"
-              className="size-4 accent-primary"
-              checked={onlyAvail}
-              onChange={(e) => { setOnlyAvail(e.target.checked); setPage(1); }}
-            />
+          <button
+            type="button"
+            onClick={() => { setOnlyAvail((v) => !v); setPage(1); }}
+            aria-pressed={onlyAvail}
+            className="inline-flex items-center gap-2.5 text-sm font-medium text-foreground"
+          >
             {t.donors.onlyAvailable}
-          </label>
+            <span className={cn('relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors', onlyAvail ? 'bg-primary' : 'bg-border')}>
+              <span className={cn('inline-block size-3.5 rounded-full bg-white shadow-sm transition-transform', onlyAvail ? 'translate-x-[18px]' : 'translate-x-1')} />
+            </span>
+          </button>
 
-          <Button variant="outline" size="sm" className="ml-auto" onClick={resetFilters}>
-            <RotateCcw aria-hidden="true" /> {t.donors.reset}
-          </Button>
-        </Card>
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="ml-auto inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            <RotateCcw className="size-3.5" aria-hidden="true" /> {t.donors.reset}
+          </button>
+        </div>
 
         {loading && (
           <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -127,7 +135,7 @@ export default function DonorsPage() {
           <div>
             <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {donors.map((d) => (
-                <Card key={d.id} className="p-5 transition-shadow hover:shadow-sm">
+                <Card key={d.id} className="flex flex-col p-5 transition-shadow hover:shadow-sm">
                   <div className="mb-4 flex items-center justify-between">
                     <div className="flex size-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
                       {d.blood_type || '?'}
@@ -139,12 +147,14 @@ export default function DonorsPage() {
                   <h3 className="mb-2.5 text-base font-semibold text-foreground">{d.full_name || t.donors.donor}</h3>
                   <div className="mb-4 flex flex-col gap-1.5 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {d.city || '--'}</span>
-                    <span className="flex items-center gap-1.5"><Calendar className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.donors.lastDonation}: {d.last_donation_date || t.donors.noInfo}</span>
+                    {d.last_donation_date && (
+                      <span className="flex items-center gap-1.5"><Calendar className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.donors.lastDonation}: {d.last_donation_date}</span>
+                    )}
                   </div>
                   {d.bio && (
                     <p className="mb-3.5 border-l-2 border-border pl-2.5 text-sm text-muted-foreground">{d.bio}</p>
                   )}
-                  {d.phone && <ContactActions phone={d.phone} callLabel={t.donors.call} />}
+                  {d.phone && <ContactActions phone={d.phone} callLabel={t.donors.call} className="mt-auto" />}
                 </Card>
               ))}
             </div>

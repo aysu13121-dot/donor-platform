@@ -18,7 +18,7 @@ export default function LandingPage() {
   const { t, lang } = useLanguage();
   const [stats, setStats] = useState(null);
   const [statsError, setStatsError] = useState(false);
-  const [selectedType, setSelectedType] = useState('O+');
+  const [selectedType, setSelectedType] = useState('A+');
 
   useEffect(() => {
     let cancelled = false;
@@ -106,7 +106,7 @@ export default function LandingPage() {
                 type="button"
                 onClick={() => setSelectedType(bt.type)}
                 className={cn(
-                  'flex size-13 items-center justify-center rounded-md text-base font-semibold transition-colors',
+                  'flex size-10 items-center justify-center rounded-md text-sm font-semibold transition-colors',
                   selectedType === bt.type
                     ? 'bg-primary text-primary-foreground'
                     : 'border border-border bg-card text-foreground hover:border-primary hover:text-primary',
