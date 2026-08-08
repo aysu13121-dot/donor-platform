@@ -1,46 +1,46 @@
 /* ============================================================
    TAILWIND + DESIGN TOKENS
-   Marka rəngləri shadcn-tərzi CSS dəyişənləri kimi tərif olunur ki,
-   Tailwind utility-ləri (bg-primary, text-muted-foreground, border-border
-   və s.) və 21st.dev-dən köçürülən komponentlər birbaşa işləsin.
+   Minimal ürün/dashboard tarzı: nötr gri-beyaz zemin, tək tipoqrafiya
+   (Inter), ölçülü kırmızı vurğu. Marka rəngləri shadcn-tərzi CSS
+   dəyişənləri kimi tərif olunur ki, Tailwind utility-ləri (bg-primary,
+   text-muted-foreground, border-border və s.) birbaşa işləsin.
    ============================================================ */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #FFF8F6;
-  --foreground: #0D1B2A;
+  --background: #FAFAFA;
+  --foreground: #18181B;
 
   --card: #FFFFFF;
-  --card-foreground: #0D1B2A;
+  --card-foreground: #18181B;
 
   --popover: #FFFFFF;
-  --popover-foreground: #0D1B2A;
+  --popover-foreground: #18181B;
 
   --primary: #C41E3A;
-  --primary-hover: #E02040;
+  --primary-hover: #A8172F;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #F4F0EE;
-  --secondary-foreground: #0D1B2A;
+  --secondary: #F4F4F5;
+  --secondary-foreground: #3F3F46;
 
-  --muted: #F4F0EE;
-  --muted-foreground: #6B7280;
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
 
-  --accent: #FFF0F2;
+  --accent: #FDF2F3;
   --accent-foreground: #C41E3A;
 
-  --destructive: #E02040;
+  --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
 
-  --border: #E8E0DC;
-  --input: #E8E0DC;
+  --border: #E4E4E7;
+  --input: #E4E4E7;
   --ring: #C41E3A;
 
-  --radius: 0.85rem;
+  --radius: 0.5rem;
 
   --font-sans: 'Inter', system-ui, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
 }
 
 @theme inline {
@@ -73,13 +73,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 6px);
-  --radius-md: calc(var(--radius) - 3px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 5px);
+  --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: var(--font-sans);
-  --font-display: var(--font-display);
 }
 
 @layer base {

@@ -3,19 +3,20 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  AlertTriangle, Building2, Droplet, HeartHandshake, Info, MapPin, MessageCircle, Phone,
-  RotateCcw, SlidersHorizontal, StickyNote,
+  AlertTriangle, Building2, Droplet, Info, MapPin, RotateCcw, SlidersHorizontal, StickyNote,
 } from 'lucide-react';
 
+import ContactActions from '@/components/ContactActions';
 import Navbar from '@/components/Navbar';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/input';
+import Skeleton from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
-import { cn } from '@/lib/utils';
 
 export default function RequestsPage() {
   const router = useRouter();
@@ -84,18 +85,15 @@ export default function RequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 pb-18 pt-10">
         <header className="mb-7 max-w-2xl">
-          <span className="mb-4 inline-flex rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-            {t.requests.filters}
-          </span>
-          <h1 className="mb-3.5 font-display text-4xl font-bold leading-tight text-foreground md:text-5xl">{t.requests.title}</h1>
-          <p className="max-w-xl text-muted-foreground">{t.requests.sub}</p>
+          <h1 className="mb-2 text-2xl font-semibold text-foreground md:text-3xl">{t.requests.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.requests.sub}</p>
         </header>
 
-        <Card className="mb-4.5 grid grid-cols-1 gap-3 p-4.5 sm:grid-cols-2 lg:grid-cols-[auto_1fr_1fr_1fr_auto]" aria-label={t.requests.filters}>
+        <Card className="mb-4.5 grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[auto_1fr_1fr_1fr_auto]" aria-label={t.requests.filters}>
           <SlidersHorizontal className="hidden size-[18px] self-center text-muted-foreground lg:block" aria-hidden="true" />
           <Select value={bloodType} onChange={(e) => setBloodType(e.target.value)}>
             <option value="">{t.requests.bloodType}: {t.requests.all}</option>
@@ -118,89 +116,83 @@ export default function RequestsPage() {
           </Button>
         </Card>
 
-        {notice && <div className="mb-4.5 rounded-xl border border-border bg-accent px-4.5 py-4 text-sm text-primary">{notice}</div>}
-        {error && <div className="mb-4.5 rounded-xl border border-border bg-secondary px-4.5 py-4 text-sm text-foreground">{error}</div>}
+        {notice && <div className="mb-4.5 rounded-md border border-border bg-accent px-4 py-3 text-sm text-accent-foreground">{notice}</div>}
+        {error && <div className="mb-4.5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>}
 
-        {loading && <div className="rounded-xl border border-border bg-card px-4.5 py-4 text-sm text-muted-foreground shadow-sm">{t.requests.loading}</div>}
+        {loading && (
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Card key={i} className="flex flex-col gap-3.5 p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <Skeleton className="h-12 w-12" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="h-4 w-28" />
+                <div className="flex flex-col gap-2">
+                  <Skeleton className="h-3.5 w-32" />
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-3.5 w-20" />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <Skeleton className="h-9" />
+                  <Skeleton className="h-9" />
+                  <Skeleton className="h-9" />
+                </div>
+              </Card>
+            ))}
+          </section>
+        )}
 
         {!loading && !error && requests.length === 0 && (
-          <div className="rounded-xl border border-border bg-card px-4.5 py-4 text-sm text-muted-foreground shadow-sm">{t.requests.empty}</div>
+          <div className="rounded-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground">{t.requests.empty}</div>
         )}
 
         {!loading && requests.length > 0 && (
-          <section className="grid grid-cols-1 gap-4.5 sm:grid-cols-2 xl:grid-cols-3">
-            {requests.map((request) => {
-              const phone = request.contact_phone || '';
-              const digits = phone.replace(/\D/g, '');
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {requests.map((request) => (
+              <Card key={request.id} className="flex flex-col gap-3.5 p-5 transition-shadow hover:shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex min-h-12 min-w-12 items-center justify-center rounded-md bg-primary px-3 text-base font-bold text-primary-foreground">
+                    {request.blood_type || '?'}
+                  </span>
+                  <Badge
+                    variant={request.urgency === 'Urgent' ? 'destructive' : 'default'}
+                    icon={request.urgency === 'Urgent' ? AlertTriangle : Info}
+                  >
+                    {request.urgency || t.requests.normal}
+                  </Badge>
+                </div>
 
-              return (
-                <Card key={request.id} className="flex flex-col gap-4 p-5.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="flex min-h-14 min-w-14 items-center justify-center rounded-xl bg-primary px-3.5 font-display text-lg font-black text-primary-foreground">
-                      {request.blood_type || '?'}
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">{request.patient_name}</h2>
+                  {request.author_name && (
+                    <p className="text-xs text-muted-foreground">{t.requests.postedBy}: {request.author_name}</p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><Building2 className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.hospital}: {request.hospital}</span>
+                  <span className="flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.city}: {request.city}</span>
+                  <span className="flex items-center gap-1.5"><Droplet className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {request.units_needed} {t.requests.units}</span>
+                  {request.note && (
+                    <span className="flex items-start gap-1.5 border-l-2 border-border pl-3 text-foreground">
+                      <StickyNote className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" /> {request.note}
                     </span>
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide',
-                        request.urgency === 'Urgent' ? 'bg-accent text-primary' : 'bg-secondary text-muted-foreground',
-                      )}
-                    >
-                      {request.urgency === 'Urgent' ? <AlertTriangle className="size-3" aria-hidden="true" /> : <Info className="size-3" aria-hidden="true" />}
-                      {request.urgency || t.requests.normal}
-                    </span>
-                  </div>
+                  )}
+                </div>
 
-                  <h2 className="text-lg font-extrabold text-foreground">{request.patient_name}</h2>
-                  <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><Building2 className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.hospital}: {request.hospital}</span>
-                    <span className="flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.requests.city}: {request.city}</span>
-                    <span className="flex items-center gap-1.5"><Droplet className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {request.units_needed} {t.requests.units}</span>
-                    {request.note && (
-                      <span className="flex items-start gap-1.5 border-l-2 border-primary pl-3 text-foreground">
-                        <StickyNote className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" /> {request.note}
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-                    <Phone className="size-3.5 text-primary" aria-hidden="true" /> {t.requests.phone}: {phone || '--'}
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {phone ? (
-                      <a href={`tel:${phone}`} className="flex min-h-11 items-center justify-center gap-1.5 rounded-full border-2 border-border text-sm font-semibold text-foreground transition-colors hover:border-primary hover:text-primary">
-                        <Phone className="size-[18px]" aria-hidden="true" /> {t.requests.call}
-                      </a>
-                    ) : (
-                      <span className="flex min-h-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-muted-foreground">{t.requests.call}</span>
-                    )}
-                    {digits ? (
-                      <a
-                        href={`https://wa.me/${digits}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-foreground text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                      >
-                        <MessageCircle className="size-[18px]" aria-hidden="true" /> WhatsApp
-                      </a>
-                    ) : (
-                      <span className="flex min-h-11 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-muted-foreground">WhatsApp</span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleRespond(request.id)}
-                      disabled={sendingId === request.id}
-                      className="flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-all hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      <HeartHandshake className="size-[18px]" aria-hidden="true" />
-                      {isAuthenticated
-                        ? (sendingId === request.id ? t.requests.loading : t.requests.donorButton)
-                        : t.requests.loginToRespond}
-                    </button>
-                  </div>
-                </Card>
-              );
-            })}
+                <ContactActions
+                  phone={request.contact_phone}
+                  callLabel={t.requests.call}
+                  onRespond={() => handleRespond(request.id)}
+                  respondLabel={isAuthenticated
+                    ? (sendingId === request.id ? t.requests.loading : t.requests.donorButton)
+                    : t.requests.loginToRespond}
+                  respondLoading={sendingId === request.id}
+                />
+              </Card>
+            ))}
           </section>
         )}
       </main>

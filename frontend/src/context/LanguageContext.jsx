@@ -2,37 +2,28 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import { BLOOD_TYPES } from '@/lib/constants';
+
 // Tətbiqin tək i18n mənbəyi - hər iki dildə bütün mətnlər buradadır.
 const T = {
   az: {
     nav: {
-      home: 'Ana səhifə', how: 'Necə işləyir', types: 'Qan qrupları',
+      home: 'Ana səhifə',
       donors: 'Donorlar', requests: 'Sorğular', createRequest: 'Yeni sorğu',
       dashboard: 'Panel', login: 'Daxil ol', register: 'Qeydiyyat', logout: 'Çıxış',
     },
     hero: {
-      eyebrow: 'Azərbaycan Qan Şəbəkəsi',
       h1: 'Bir damcı,', h1em: 'min həyat.',
-      sub: 'Ehtiyacı olanı tap, ya da özün donor ol. Bir neçə dəqiqədə.',
+      sub: 'Ehtiyacı olanı tap, ya da özün donor ol.',
       cta1: 'Donor ol', cta2: 'Qan qrupunu tap',
     },
-    how: {
-      title: 'Necə işləyir?', sub: 'Üç sadə addım',
-      steps: [
-        { num: '01', title: 'Qeydiyyat', desc: 'Adını, qan qrupunu və şəhərini bir dəqiqədə əlavə et.' },
-        { num: '02', title: 'Profil', desc: 'Nə vaxt hazır olduğunu göstər, sənə əlaqə saxlanılsın.' },
-        { num: '03', title: 'Kömək et', desc: 'Ehtiyacı olanlar səni tapır. Sən də onları tapa bilərsən.' },
-      ],
-    },
     blood: {
-      title: 'Qan qrupun kimə uyğundur?', sub: 'Öz qrupunu seç, uyğunluğu bir baxışda gör.',
+      title: 'Qan qrupun kimə uyğundur?',
       selectPrompt: 'Qrupunu seç',
       gives: 'Verə bilər', receives: 'Ala bilər',
-      all: 'hamısına', allFrom: 'hamısından',
-      uDonor: 'Universal donor', uReceiver: 'Universal alıcı',
     },
     cta: { title: 'Bu gün başla', sub: '3 ayda bir neçə dəqiqən, bir insanın həyatı deməkdir.', btn: 'Donor ol' },
-    footer: '© 2026 QanDonoru. Bütün hüquqlar qorunur.',
+    footer: '© 2026 Donor.az. Bütün hüquqlar qorunur.',
     login: {
       title: 'Xoş gəldin', sub: 'Hesabına daxil ol',
       email: 'E-poçt', password: 'Şifrə', btn: 'Daxil ol', loading: 'Yoxlanılır...',
@@ -55,7 +46,6 @@ const T = {
       allCities: 'Bütün şəhərlər',
       onlyAvailable: 'Yalnız hazır olanlar',
       reset: 'Sıfırla',
-      loading: 'Yüklənir...',
       error: 'Yüklənmədi, yenidən cəhd et.',
       empty: 'Uyğun donor tapılmadı.',
       active: 'Hazır',
@@ -73,7 +63,7 @@ const T = {
       filters: 'Filtr',
       bloodType: 'Qan qrupu',
       city: 'Şəhər',
-      urgency: 'Təciliyyət',
+      urgency: 'Təcililik',
       all: 'Hamısı',
       urgent: 'Təcili',
       normal: 'Normal',
@@ -89,6 +79,7 @@ const T = {
       units: 'vahid',
       hospital: 'Xəstəxana',
       call: 'Zəng et',
+      postedBy: 'Paylaşan',
     },
     createRequest: {
       badge: 'Yeni sorğu',
@@ -99,7 +90,7 @@ const T = {
       hospital: 'Xəstəxana',
       city: 'Şəhər',
       unitsNeeded: 'Neçə vahid',
-      urgency: 'Təciliyyət',
+      urgency: 'Təcililik',
       urgent: 'Təcili',
       normal: 'Normal',
       contactPhone: 'Əlaqə nömrəsi',
@@ -118,7 +109,6 @@ const T = {
       logout: 'Çıxış',
       save: 'Yadda saxla',
       saving: 'Saxlanılır...',
-      loading: 'Yüklənir...',
       loadingRequests: 'Yüklənir...',
       noRequests: 'Hələ sorğu yoxdur.',
       error: 'Yüklənmədi.',
@@ -138,7 +128,7 @@ const T = {
       delete: 'Sil',
       hospital: 'Xəstəxana',
       units: 'vahid',
-      urgency: 'Təciliyyət',
+      urgency: 'Təcililik',
       requestsCount: (n) => `${n} sorğu`,
       welcome: (name) => `Xoş gəldin, ${name}`,
       panel: 'Panel',
@@ -151,41 +141,37 @@ const T = {
       tablePatient: 'Xəstə',
       tableLocation: 'Yer',
       tableUnits: 'Vahid',
-      tableUrgency: 'Təciliyyət',
+      tableUrgency: 'Təcililik',
       tableStatus: 'Status',
       tableActions: '',
       backToSite: 'Sayta qayıt',
+      tableOffers: 'Təkliflər',
+      offers: 'Təkliflər',
+      offersCount: (n) => `${n} təklif`,
+      noOffers: 'Hələ təklif yoxdur.',
+      offersError: 'Təkliflər yüklənmədi.',
+      close: 'Bağla',
+      offerMessage: 'Mesaj',
     },
   },
   en: {
     nav: {
-      home: 'Home', how: 'How it works', types: 'Blood types',
+      home: 'Home',
       donors: 'Donors', requests: 'Requests', createRequest: 'New request',
       dashboard: 'Dashboard', login: 'Log in', register: 'Sign up', logout: 'Log out',
     },
     hero: {
-      eyebrow: "Azerbaijan's Blood Network",
       h1: 'One drop,', h1em: 'endless lives.',
-      sub: 'Find who needs help, or become a donor yourself. Takes minutes.',
+      sub: 'Find who needs help, or become a donor yourself.',
       cta1: 'Become a donor', cta2: 'Find your type',
     },
-    how: {
-      title: 'How it works', sub: 'Three simple steps',
-      steps: [
-        { num: '01', title: 'Sign up', desc: 'Add your name, blood type, and city in a minute.' },
-        { num: '02', title: 'Set status', desc: 'Show when you’re ready so people can reach you.' },
-        { num: '03', title: 'Help out', desc: 'People in need find you. You can find them too.' },
-      ],
-    },
     blood: {
-      title: 'Who matches your type?', sub: 'Pick your type, see the match at a glance.',
+      title: 'Who matches your type?',
       selectPrompt: 'Choose your type',
       gives: 'Can give to', receives: 'Can receive from',
-      all: 'everyone', allFrom: 'everyone',
-      uDonor: 'Universal donor', uReceiver: 'Universal recipient',
     },
     cta: { title: 'Start today', sub: 'A few minutes every 3 months. One life, every time.', btn: 'Become a donor' },
-    footer: '© 2026 QanDonoru. All rights reserved.',
+    footer: '© 2026 Donor.az. All rights reserved.',
     login: {
       title: 'Welcome back', sub: 'Log in to continue',
       email: 'Email', password: 'Password', btn: 'Log in', loading: 'Checking...',
@@ -208,7 +194,6 @@ const T = {
       allCities: 'All cities',
       onlyAvailable: 'Available only',
       reset: 'Reset',
-      loading: 'Loading...',
       error: "Couldn't load. Try again.",
       empty: 'No matching donors.',
       active: 'Available',
@@ -242,6 +227,7 @@ const T = {
       units: 'units',
       hospital: 'Hospital',
       call: 'Call',
+      postedBy: 'Posted by',
     },
     createRequest: {
       badge: 'New request',
@@ -271,7 +257,6 @@ const T = {
       logout: 'Log out',
       save: 'Save',
       saving: 'Saving...',
-      loading: 'Loading...',
       loadingRequests: 'Loading...',
       noRequests: 'No requests yet.',
       error: "Couldn't load.",
@@ -308,21 +293,29 @@ const T = {
       tableStatus: 'Status',
       tableActions: '',
       backToSite: 'Back to site',
+      tableOffers: 'Offers',
+      offers: 'Offers',
+      offersCount: (n) => `${n} offers`,
+      noOffers: 'No offers yet.',
+      offersError: "Couldn't load offers.",
+      close: 'Close',
+      offerMessage: 'Message',
     },
   },
 };
 
-// Landing səhifəsindəki qan-qrupu uyğunluq cədvəli - tərcümə açarlarına
-// (t.blood.all/allFrom/uDonor/uReceiver) birbaşa əlçatandır.
-export function bloodCompatibility(t) {
+// Landing səhifəsindəki qan-qrupu uyğunluq cədvəli. O- hamıya verə bilər,
+// AB+ hamıdan ala bilər - əvvəllər bunlar "hamısına"/"hamısından" kimi tək
+// sözlə göstərilirdi, indi digər qruplar kimi tam siyahı olaraq göstərilir.
+export function bloodCompatibility() {
   return [
     { type: 'A+', gives: ['A+', 'AB+'], receives: ['A+', 'A-', 'O+', 'O-'] },
     { type: 'A-', gives: ['A+', 'A-', 'AB+', 'AB-'], receives: ['A-', 'O-'] },
     { type: 'B+', gives: ['B+', 'AB+'], receives: ['B+', 'B-', 'O+', 'O-'] },
     { type: 'B-', gives: ['B+', 'B-', 'AB+', 'AB-'], receives: ['B-', 'O-'] },
     { type: 'O+', gives: ['O+', 'A+', 'B+', 'AB+'], receives: ['O+', 'O-'] },
-    { type: 'O-', gives: [t.blood.all], receives: ['O-'], tag: t.blood.uDonor },
-    { type: 'AB+', gives: ['AB+'], receives: [t.blood.allFrom], tag: t.blood.uReceiver },
+    { type: 'O-', gives: BLOOD_TYPES, receives: ['O-'] },
+    { type: 'AB+', gives: ['AB+'], receives: BLOOD_TYPES },
     { type: 'AB-', gives: ['AB+', 'AB-'], receives: ['AB-', 'A-', 'B-', 'O-'] },
   ];
 }

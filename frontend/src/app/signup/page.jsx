@@ -42,14 +42,14 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-secondary px-4 py-10">
-      <div className="w-full max-w-[600px] rounded-2xl border border-border bg-card p-10 shadow-md sm:p-12">
-        <BrandLogo className="mb-8 text-[1.1rem]" />
-        <h1 className="mb-2 font-display text-3xl font-bold text-foreground">{t.signup.title}</h1>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-[600px] rounded-lg border border-border bg-card p-10 sm:p-12">
+        <BrandLogo className="mb-8" />
+        <h1 className="mb-2 text-2xl font-semibold text-foreground">{t.signup.title}</h1>
         <p className="mb-8 text-sm text-muted-foreground">{t.signup.sub}</p>
 
         {error && (
-          <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>
+          <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-2">

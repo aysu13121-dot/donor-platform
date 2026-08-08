@@ -56,18 +56,18 @@ function CreateRequestForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary">
+    <div className="min-h-screen bg-background">
       <Navbar />
       <main className="mx-auto max-w-3xl px-6 py-9 pb-18">
         <Card className="p-10 sm:p-12">
-          <span className="mb-4.5 inline-flex rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+          <span className="mb-4.5 inline-flex rounded-md bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
             {t.createRequest.badge}
           </span>
-          <h1 className="mb-2 font-display text-3xl font-bold text-foreground">{t.createRequest.title}</h1>
+          <h1 className="mb-2 text-2xl font-semibold text-foreground">{t.createRequest.title}</h1>
           <p className="mb-8 text-sm text-muted-foreground">{t.createRequest.sub}</p>
 
           {error && (
-            <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>
+            <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>
           )}
 
           <form className="grid grid-cols-1 gap-5 sm:grid-cols-2" onSubmit={handleSubmit}>

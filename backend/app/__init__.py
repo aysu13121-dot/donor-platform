@@ -23,7 +23,7 @@ SWAGGER_CONFIG = {
 SWAGGER_TEMPLATE = {
     "swagger": "2.0",
     "info": {
-        "title": "Qan Donoru Platforması API",
+        "title": "Donor.az API",
         "description": "Donor və resipiyentlər üçün RESTful API sənədləşməsi",
         "version": "3.0.0",
     },

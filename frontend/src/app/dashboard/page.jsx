@@ -2,21 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Activity, Building2, CheckCircle2, ClipboardList, Droplet, MapPin, Save, Trash2,
+  Activity, Building2, CheckCircle2, ClipboardList, Droplet, Inbox, MapPin, Save, Trash2,
   TriangleAlert, XCircle,
 } from 'lucide-react';
 
 import DashboardShell from '@/components/dashboard/DashboardShell';
+import OffersModal from '@/components/dashboard/OffersModal';
 import StatCard from '@/components/dashboard/StatCard';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input, Label, Select, Textarea } from '@/components/ui/input';
+import Skeleton from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ApiError, api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+
+const STATUS_VARIANT = { fulfilled: 'success', cancelled: 'default', active: 'accent' };
+const STATUS_ICON = { fulfilled: CheckCircle2, cancelled: XCircle, active: TriangleAlert };
 
 function DashboardContent() {
   const { t } = useLanguage();
@@ -30,6 +35,7 @@ function DashboardContent() {
   const [error, setError] = useState('');
   const [requestError, setRequestError] = useState('');
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [offersRequest, setOffersRequest] = useState(null);
   const [form, setForm] = useState({
     full_name: '',
     blood_type: '',
@@ -143,24 +149,25 @@ function DashboardContent() {
   return (
     <DashboardShell>
       <div className="mb-8">
-        <h1 className="mb-1.5 font-display text-2xl font-bold text-foreground md:text-3xl">
+        <h1 className="mb-1.5 text-2xl font-semibold text-foreground md:text-3xl">
           {t.dashboard.overviewTitle}
         </h1>
         <p className="text-sm text-muted-foreground">{t.dashboard.sub}</p>
       </div>
 
-      {error && <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{error}</div>}
-      {requestError && <div className="mb-5 rounded-lg border border-primary bg-accent px-4 py-3 text-sm text-primary">{requestError}</div>}
+      {error && <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>}
+      {requestError && <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{requestError}</div>}
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={ClipboardList} value={requestsLoading ? '–' : requests.length} label={t.dashboard.statTotal} />
-        <StatCard icon={Activity} value={requestsLoading ? '–' : activeCount} label={t.dashboard.statActive} tone="primary" />
-        <StatCard icon={CheckCircle2} value={requestsLoading ? '–' : fulfilledCount} label={t.dashboard.statFulfilled} />
+        <StatCard icon={ClipboardList} value={requests.length} label={t.dashboard.statTotal} loading={requestsLoading} />
+        <StatCard icon={Activity} value={activeCount} label={t.dashboard.statActive} tone="primary" loading={requestsLoading} />
+        <StatCard icon={CheckCircle2} value={fulfilledCount} label={t.dashboard.statFulfilled} loading={requestsLoading} />
         <StatCard
           icon={Droplet}
-          value={loading ? '–' : (form.is_available ? t.dashboard.active : t.dashboard.cancelled)}
+          value={form.is_available ? t.dashboard.active : t.dashboard.cancelled}
           label={t.dashboard.statDonorStatus}
           tone={form.is_available ? 'primary' : 'default'}
+          loading={loading}
         />
       </div>
 
@@ -172,7 +179,27 @@ function DashboardContent() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.loading}</div>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-11 w-full" />
+              </div>
             ) : (
               <form className="flex flex-col gap-4" onSubmit={handleSave}>
                 <div className="flex flex-col gap-1.5">
@@ -210,7 +237,7 @@ function DashboardContent() {
                   />
                 </div>
 
-                <div className="flex items-center justify-between rounded-lg border border-input px-3.5 py-2.5">
+                <div className="flex items-center justify-between rounded-md border border-input px-3.5 py-2.5">
                   <Label htmlFor="is_available" className="cursor-pointer">{t.dashboard.available}</Label>
                   <input
                     id="is_available" name="is_available" type="checkbox"
@@ -241,17 +268,30 @@ function DashboardContent() {
           </CardHeader>
           <CardContent>
             {requestsLoading ? (
-              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.loadingRequests}</div>
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <div key={i} className="flex items-center gap-3 border-b border-border pb-3 last:border-0">
+                    <div className="flex flex-1 flex-col gap-1.5">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-40" />
+                    </div>
+                    <Skeleton className="h-5 w-16 shrink-0" />
+                    <Skeleton className="h-8 w-20 shrink-0" />
+                  </div>
+                ))}
+              </div>
             ) : requests.length === 0 ? (
-              <div className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.noRequests}</div>
+              <div className="rounded-md bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.noRequests}</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
                   <thead>
-                    <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
                       <th className="pb-3 pr-3 font-semibold">{t.dashboard.tablePatient}</th>
                       <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableLocation}</th>
                       <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableStatus}</th>
+                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableOffers}</th>
                       <th className="pb-3 pl-3 text-right font-semibold">{t.dashboard.tableActions}</th>
                     </tr>
                   </thead>
@@ -273,21 +313,21 @@ function DashboardContent() {
                           <p className="flex items-center gap-1"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {item.city}</p>
                         </td>
                         <td className="py-3 pr-3">
-                          <span
-                            className={cn(
-                              'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase',
-                              item.status === 'fulfilled' && 'bg-secondary text-muted-foreground',
-                              item.status === 'cancelled' && 'bg-secondary text-foreground',
-                              item.status === 'active' && 'bg-accent text-primary',
-                            )}
-                          >
-                            {item.status === 'fulfilled' && <CheckCircle2 aria-hidden="true" />}
-                            {item.status === 'cancelled' && <XCircle aria-hidden="true" />}
-                            {item.status === 'active' && <TriangleAlert aria-hidden="true" />}
+                          <Badge variant={STATUS_VARIANT[item.status] || 'default'} icon={STATUS_ICON[item.status]}>
                             {item.status === 'fulfilled' ? t.dashboard.fulfilled
                               : item.status === 'cancelled' ? t.dashboard.cancelled
                                 : t.dashboard.active}
-                          </span>
+                          </Badge>
+                        </td>
+                        <td className="py-3 pr-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setOffersRequest(item)}
+                          >
+                            <Inbox aria-hidden="true" /> {t.dashboard.offers}
+                          </Button>
                         </td>
                         <td className="py-3 pl-3 text-right">
                           <Button
@@ -310,6 +350,13 @@ function DashboardContent() {
           </CardContent>
         </Card>
       </div>
+
+      <OffersModal
+        requestId={offersRequest?.id}
+        patientName={offersRequest?.patient_name}
+        open={Boolean(offersRequest)}
+        onClose={() => setOffersRequest(null)}
+      />
     </DashboardShell>
   );
 }

@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import {
-  Calendar, CheckCircle2, ChevronLeft, ChevronRight, MapPin, MessageCircle, Phone, RotateCcw,
-  SlidersHorizontal, XCircle,
+  Calendar, CheckCircle2, ChevronLeft, ChevronRight, MapPin, RotateCcw, SlidersHorizontal, XCircle,
 } from 'lucide-react';
 
+import ContactActions from '@/components/ContactActions';
 import Navbar from '@/components/Navbar';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select } from '@/components/ui/input';
+import Skeleton from '@/components/ui/skeleton';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
-import { cn } from '@/lib/utils';
 
 export default function DonorsPage() {
   const { t } = useLanguage();
@@ -62,12 +63,12 @@ export default function DonorsPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="mx-auto max-w-6xl px-6">
-        <div className="py-12 text-center">
-          <h1 className="mb-2.5 font-display text-4xl font-black text-foreground md:text-5xl">{t.donors.title}</h1>
-          <p className="text-muted-foreground">{t.donors.sub}</p>
+        <div className="py-10">
+          <h1 className="mb-1.5 text-2xl font-semibold text-foreground md:text-3xl">{t.donors.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.donors.sub}</p>
         </div>
 
-        <Card className="mb-8 flex flex-wrap items-center gap-3 p-5">
+        <Card className="mb-8 flex flex-wrap items-center gap-3 p-4">
           <SlidersHorizontal className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
           <Select className="w-auto" value={bloodType} onChange={(e) => { setBloodType(e.target.value); setPage(1); }}>
             <option value="">{t.donors.allBloodTypes}</option>
@@ -94,8 +95,29 @@ export default function DonorsPage() {
           </Button>
         </Card>
 
-        {loading && <div className="py-16 text-center text-muted-foreground">{t.donors.loading}</div>}
-        {error && <div className="py-16 text-center text-primary">{error}</div>}
+        {loading && (
+          <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <Card key={i} className="p-5">
+                <div className="mb-4 flex items-center justify-between">
+                  <Skeleton className="size-11" />
+                  <Skeleton className="h-5 w-16" />
+                </div>
+                <Skeleton className="mb-2.5 h-4 w-32" />
+                <div className="mb-4 flex flex-col gap-1.5">
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-3.5 w-36" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Skeleton className="h-9" />
+                  <Skeleton className="h-9" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+        {!loading && error && <div className="py-16 text-center text-destructive">{error}</div>}
 
         {!loading && !error && donors.length === 0 && (
           <div className="py-16 text-center text-muted-foreground">{t.donors.empty}</div>
@@ -103,49 +125,26 @@ export default function DonorsPage() {
 
         {!loading && donors.length > 0 && (
           <div>
-            <div className="mb-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {donors.map((d) => (
-                <Card key={d.id} className="p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+                <Card key={d.id} className="p-5 transition-shadow hover:shadow-sm">
                   <div className="mb-4 flex items-center justify-between">
-                    <div className="flex size-12 items-center justify-center rounded-xl bg-primary text-base font-extrabold text-primary-foreground">
+                    <div className="flex size-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
                       {d.blood_type || '?'}
                     </div>
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold',
-                        d.is_available ? 'bg-accent text-primary' : 'bg-secondary text-muted-foreground',
-                      )}
-                    >
-                      {d.is_available ? <CheckCircle2 className="size-3" aria-hidden="true" /> : <XCircle className="size-3" aria-hidden="true" />}
+                    <Badge variant={d.is_available ? 'accent' : 'default'} icon={d.is_available ? CheckCircle2 : XCircle}>
                       {d.is_available ? t.donors.active : t.donors.inactive}
-                    </span>
+                    </Badge>
                   </div>
-                  <h3 className="mb-2.5 text-lg font-bold text-foreground">{d.full_name || t.donors.donor}</h3>
-                  <div className="mb-3 flex flex-col gap-1.5 text-sm text-muted-foreground">
+                  <h3 className="mb-2.5 text-base font-semibold text-foreground">{d.full_name || t.donors.donor}</h3>
+                  <div className="mb-4 flex flex-col gap-1.5 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1.5"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {d.city || '--'}</span>
                     <span className="flex items-center gap-1.5"><Calendar className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {t.donors.lastDonation}: {d.last_donation_date || t.donors.noInfo}</span>
                   </div>
                   {d.bio && (
-                    <p className="mb-3.5 border-l-2 border-primary pl-2.5 text-sm italic text-muted-foreground">{d.bio}</p>
+                    <p className="mb-3.5 border-l-2 border-border pl-2.5 text-sm text-muted-foreground">{d.bio}</p>
                   )}
-                  {d.phone && (
-                    <div className="flex gap-2.5">
-                      <a
-                        href={`tel:${d.phone}`}
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary bg-accent px-3 py-2.5 text-sm font-semibold text-primary transition-opacity hover:opacity-80"
-                      >
-                        <Phone className="size-[15px]" aria-hidden="true" /> {t.donors.call}
-                      </a>
-                      <a
-                        href={`https://wa.me/${d.phone.replace(/\D/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary px-3 py-2.5 text-sm font-semibold text-foreground transition-opacity hover:opacity-80"
-                      >
-                        <MessageCircle className="size-[15px]" aria-hidden="true" /> WhatsApp
-                      </a>
-                    </div>
-                  )}
+                  {d.phone && <ContactActions phone={d.phone} callLabel={t.donors.call} />}
                 </Card>
               ))}
             </div>

@@ -1,4 +1,4 @@
-# Qan Donoru Platforması
+# Donor.az — Qan Donorluğu Platforması
 
 Sıfırdan, təmiz mimari ilə yazılmış versiya:
 
