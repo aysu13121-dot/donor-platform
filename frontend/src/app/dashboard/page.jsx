@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  Building2, CheckCircle2, Droplet, MapPin, Save, Trash2, TriangleAlert, XCircle,
+} from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -200,7 +203,7 @@ function DashboardContent() {
                 </div>
 
                 <button type="submit" className="btn-primary auth-submit auth-submit--full" disabled={saving || loading}>
-                  {saving ? t.dashboard.saving : t.dashboard.save}
+                  <Save aria-hidden="true" /> {saving ? t.dashboard.saving : t.dashboard.save}
                 </button>
               </form>
             )}
@@ -227,6 +230,9 @@ function DashboardContent() {
                           : item.status === 'cancelled' ? 'dashboard-status dashboard-status--cancelled'
                             : 'dashboard-status dashboard-status--active'
                       }>
+                        {item.status === 'fulfilled' ? <CheckCircle2 aria-hidden="true" />
+                          : item.status === 'cancelled' ? <XCircle aria-hidden="true" />
+                            : <TriangleAlert aria-hidden="true" />}
                         {item.status === 'fulfilled' ? t.dashboard.fulfilled
                           : item.status === 'cancelled' ? t.dashboard.cancelled
                             : t.dashboard.active}
@@ -235,10 +241,10 @@ function DashboardContent() {
 
                     <h3 className="dashboard-request__title">{item.patient_name}</h3>
                     <div className="dashboard-request__meta">
-                      <span>{t.dashboard.hospital}: {item.hospital}</span>
-                      <span>{t.dashboard.city}: {item.city}</span>
-                      <span>{item.units_needed} {t.dashboard.units}</span>
-                      <span>{t.dashboard.urgency}: {item.urgency}</span>
+                      <span><Building2 aria-hidden="true" /> {t.dashboard.hospital}: {item.hospital}</span>
+                      <span><MapPin aria-hidden="true" /> {t.dashboard.city}: {item.city}</span>
+                      <span><Droplet aria-hidden="true" /> {item.units_needed} {t.dashboard.units}</span>
+                      <span><TriangleAlert aria-hidden="true" /> {t.dashboard.urgency}: {item.urgency}</span>
                     </div>
 
                     <button
@@ -247,7 +253,7 @@ function DashboardContent() {
                       onClick={() => handleDelete(item.id)}
                       disabled={deleteLoadingId === item.id}
                     >
-                      {t.dashboard.delete}
+                      <Trash2 aria-hidden="true" /> {t.dashboard.delete}
                     </button>
                   </article>
                 ))}

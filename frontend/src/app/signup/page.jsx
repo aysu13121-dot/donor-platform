@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { UserPlus } from 'lucide-react';
 
+import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
@@ -40,7 +42,7 @@ export default function SignupPage() {
   return (
     <div className="auth-page">
       <div className="auth-card auth-card--wide">
-        <Link href="/" className="auth-logo">🩸 Qan<strong>Donoru</strong></Link>
+        <BrandLogo className="auth-logo" />
         <h1 className="auth-title">{t.signup.title}</h1>
         <p className="auth-sub">{t.signup.sub}</p>
 
@@ -95,7 +97,7 @@ export default function SignupPage() {
             </select>
           </div>
           <button type="submit" className="btn-primary auth-submit auth-submit--full" disabled={loading}>
-            {loading ? t.signup.loading : t.signup.btn}
+            <UserPlus aria-hidden="true" /> {loading ? t.signup.loading : t.signup.btn}
           </button>
         </form>
 

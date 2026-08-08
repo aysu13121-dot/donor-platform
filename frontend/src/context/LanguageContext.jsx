@@ -16,7 +16,7 @@ const T = {
       eyebrow: 'Azərbaycanın donor şəbəkəsi',
       h1: 'Bir damcı qan,', h1em: 'bir həyat.',
       sub: 'Regional Qan Donoru Sistemi vasitəsilə ən yaxın donoru tapın və ya özünüz donor olaraq həyat xilas edin.',
-      cta1: '🩸 Donor ol', cta2: 'Qan qrupu tap',
+      cta1: 'Donor ol', cta2: 'Qan qrupu tap',
     },
     how: {
       title: 'Necə işləyir?', sub: 'Üç addımda donorluq prosesini başlat',
@@ -32,7 +32,7 @@ const T = {
       all: 'Hamısına', allFrom: 'Hamısından',
       uDonor: 'Universal donor', uReceiver: 'Universal alıcı',
     },
-    cta: { title: 'Bugün donor olun', sub: 'Hər 3 aydan bir — bir saatınız, bir həyat deməkdir.', btn: 'İndi başla →' },
+    cta: { title: 'Bugün donor olun', sub: 'Hər 3 aydan bir — bir saatınız, bir həyat deməkdir.', btn: 'İndi başla' },
     footer: '© 2026 Regional Qan Donoru Sistemi. Bütün hüquqlar qorunur.',
     login: {
       title: 'Xoş gəldiniz', sub: 'Hesabınıza daxil olun',
@@ -44,7 +44,7 @@ const T = {
       title: 'Donor ol', sub: 'Pulsuz qeydiyyatdan keçin',
       fullName: 'Ad Soyad', email: 'E-poçt', password: 'Şifrə',
       phone: 'Telefon', bloodType: 'Qan qrupu', city: 'Şəhər', select: 'Seçin...',
-      btn: '🩸 Qeydiyyatdan keç', loading: 'Gözləyin...',
+      btn: 'Qeydiyyatdan keç', loading: 'Gözləyin...',
       switch: 'Artıq hesabınız var?', switchLink: 'Daxil olun',
       serverErr: 'Server ilə əlaqə qurmaq mümkün olmadı.',
       passwordHint: 'Minimum 4 simvol',
@@ -152,7 +152,7 @@ const T = {
       eyebrow: "Azerbaijan's donor network",
       h1: 'One drop of blood,', h1em: 'one life.',
       sub: 'Find the nearest donor through the Regional Blood Donor System, or save a life by becoming a donor yourself.',
-      cta1: '🩸 Become a donor', cta2: 'Find blood type',
+      cta1: 'Become a donor', cta2: 'Find blood type',
     },
     how: {
       title: 'How does it work?', sub: 'Start the donation process in three steps',
@@ -168,7 +168,7 @@ const T = {
       all: 'Everyone', allFrom: 'Everyone',
       uDonor: 'Universal donor', uReceiver: 'Universal receiver',
     },
-    cta: { title: 'Become a donor today', sub: 'Once every 3 months — one hour of your time means one life.', btn: 'Start now →' },
+    cta: { title: 'Become a donor today', sub: 'Once every 3 months — one hour of your time means one life.', btn: 'Start now' },
     footer: '© 2026 Regional Blood Donor System. All rights reserved.',
     login: {
       title: 'Welcome back', sub: 'Log in to your account',
@@ -180,7 +180,7 @@ const T = {
       title: 'Become a donor', sub: 'Register for free',
       fullName: 'Full Name', email: 'Email', password: 'Password',
       phone: 'Phone', bloodType: 'Blood type', city: 'City', select: 'Select...',
-      btn: '🩸 Register', loading: 'Please wait...',
+      btn: 'Register', loading: 'Please wait...',
       switch: 'Already have an account?', switchLink: 'Log in',
       serverErr: 'Could not connect to the server.',
       passwordHint: 'Minimum 4 characters',

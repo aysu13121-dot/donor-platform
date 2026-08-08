@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  AlertTriangle, Building2, Droplet, HeartHandshake, Info, MapPin, MessageCircle, Phone,
+  RotateCcw, SlidersHorizontal, StickyNote,
+} from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
@@ -86,6 +90,7 @@ export default function RequestsPage() {
         </header>
 
         <section className="requests-filters" aria-label={t.requests.filters}>
+          <SlidersHorizontal className="filter-bar__icon" aria-hidden="true" />
           <select value={bloodType} onChange={(e) => setBloodType(e.target.value)}>
             <option value="">{t.requests.bloodType}: {t.requests.all}</option>
             {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
@@ -103,7 +108,7 @@ export default function RequestsPage() {
           </select>
 
           <button type="button" className="btn-outline requests-filters__reset" onClick={resetFilters}>
-            {t.requests.reset}
+            <RotateCcw aria-hidden="true" /> {t.requests.reset}
           </button>
         </section>
 
@@ -127,27 +132,28 @@ export default function RequestsPage() {
                   <div className="request-card__top">
                     <span className="request-blood">{request.blood_type || '?'}</span>
                     <span className={request.urgency === 'Urgent' ? 'request-tag request-tag--urgent' : 'request-tag request-tag--normal'}>
+                      {request.urgency === 'Urgent' ? <AlertTriangle aria-hidden="true" /> : <Info aria-hidden="true" />}
                       {request.urgency || t.requests.normal}
                     </span>
                   </div>
 
                   <h2 className="request-title">{request.patient_name}</h2>
                   <div className="request-meta">
-                    <span>{t.requests.hospital}: {request.hospital}</span>
-                    <span>{t.requests.city}: {request.city}</span>
-                    <span>{request.units_needed} {t.requests.units}</span>
-                    {request.note && <span className="request-note">{request.note}</span>}
+                    <span><Building2 aria-hidden="true" /> {t.requests.hospital}: {request.hospital}</span>
+                    <span><MapPin aria-hidden="true" /> {t.requests.city}: {request.city}</span>
+                    <span><Droplet aria-hidden="true" /> {request.units_needed} {t.requests.units}</span>
+                    {request.note && <span className="request-note"><StickyNote aria-hidden="true" /> {request.note}</span>}
                   </div>
 
-                  <p className="request-contact">{t.requests.phone}: {phone || '--'}</p>
+                  <p className="request-contact"><Phone aria-hidden="true" /> {t.requests.phone}: {phone || '--'}</p>
 
                   <div className="request-actions">
                     {phone
-                      ? <a href={`tel:${phone}`} className="btn-outline request-actions__link">{t.requests.call}</a>
+                      ? <a href={`tel:${phone}`} className="btn-outline request-actions__link"><Phone aria-hidden="true" /> {t.requests.call}</a>
                       : <span className="request-actions__link request-actions__link--muted">{t.requests.call}</span>}
                     {digits ? (
                       <a href={`https://wa.me/${digits}`} target="_blank" rel="noreferrer" className="btn-primary request-actions__link request-actions__link--whatsapp">
-                        WhatsApp
+                        <MessageCircle aria-hidden="true" /> WhatsApp
                       </a>
                     ) : (
                       <span className="request-actions__link request-actions__link--muted">WhatsApp</span>
@@ -158,6 +164,7 @@ export default function RequestsPage() {
                       onClick={() => handleRespond(request.id)}
                       disabled={sendingId === request.id}
                     >
+                      <HeartHandshake aria-hidden="true" />
                       {isAuthenticated
                         ? (sendingId === request.id ? t.requests.loading : t.requests.donorButton)
                         : t.requests.loginToRespond}

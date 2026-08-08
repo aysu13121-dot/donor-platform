@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { Globe, LogOut, Menu, User, X } from 'lucide-react';
 
+import BrandLogo from '@/components/BrandLogo';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -25,10 +27,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="container navbar__inner">
-        <Link href="/" className="navbar__logo">
-          <span>🩸</span>
-          <span>Qan<strong>Donoru</strong></span>
-        </Link>
+        <BrandLogo className="navbar__logo" />
 
         <ul className="navbar__links">
           <li><Link href="/" className={isActive('/') ? 'active' : ''}>{t.nav.home}</Link></li>
@@ -50,9 +49,9 @@ export default function Navbar() {
           </button>
           {isAuthenticated ? (
             <>
-              <span className="navbar__user">👤 {user?.full_name || user?.email || 'Donor'}</span>
+              <span className="navbar__user"><User className="navbar__user-icon" aria-hidden="true" />{user?.full_name || user?.email || 'Donor'}</span>
               <button type="button" className="btn-outline navbar__login" onClick={handleLogout}>
-                {t.nav.logout}
+                <LogOut aria-hidden="true" /> {t.nav.logout}
               </button>
             </>
           ) : (
@@ -69,7 +68,7 @@ export default function Navbar() {
           onClick={() => setMenuOpen((open) => !open)}
           aria-label="Toggle menu"
         >
-          <span /><span /><span />
+          {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </button>
       </div>
 
@@ -87,12 +86,12 @@ export default function Navbar() {
             className="lang-toggle lang-toggle--mobile"
             onClick={() => { toggle(); setMenuOpen(false); }}
           >
-            {lang === 'az' ? '🇬🇧 English' : '🇦🇿 Azərbaycanca'}
+            <Globe aria-hidden="true" /> {lang === 'az' ? 'English' : 'Azərbaycanca'}
           </button>
           {isAuthenticated ? (
             <>
-              <span className="navbar__user">👤 {user?.full_name || user?.email || 'Donor'}</span>
-              <button type="button" className="btn-outline" onClick={handleLogout}>{t.nav.logout}</button>
+              <span className="navbar__user"><User className="navbar__user-icon" aria-hidden="true" />{user?.full_name || user?.email || 'Donor'}</span>
+              <button type="button" className="btn-outline" onClick={handleLogout}><LogOut aria-hidden="true" /> {t.nav.logout}</button>
             </>
           ) : (
             <>

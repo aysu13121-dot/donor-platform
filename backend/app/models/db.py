@@ -362,5 +362,9 @@ def get_platform_stats():
         'active_donors': active_donors,
         'active_requests': active_requests,
         'fulfilled_requests': fulfilled_requests,
-        'total_cities': max(total_cities, 3),
+        # Qeyd: bundan əvvəl burada real say nə olursa olsun ən azı 3 göstərən
+        # süni bir taban (`max(total_cities, 3)`) var idi - bu sadəcə görüntünü
+        # "yaxşı göstərmək" üçün idi və məlumatı yanlış əks etdirirdi. İndi
+        # sayğac real DISTINCT şəhər sayını olduğu kimi qaytarır.
+        'total_cities': total_cities,
     }

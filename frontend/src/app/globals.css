@@ -90,6 +90,21 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   transform: translateY(-1px);
 }
 
+.btn-primary svg,
+.btn-outline svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.btn-primary:focus-visible,
+.btn-outline:focus-visible,
+.lang-toggle:focus-visible,
+.navbar__burger:focus-visible {
+  outline: 2px solid var(--red-deep);
+  outline-offset: 2px;
+}
+
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
 }
@@ -113,14 +128,21 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   height: 68px;
 }
 
-.navbar__logo {
-  display: flex;
+.brand-logo {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.2rem;
   color: var(--navy);
 }
-.navbar__logo strong { color: var(--red-deep); }
+.brand-logo strong { color: var(--red-deep); }
+.brand-logo__icon {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--red-deep);
+  flex-shrink: 0;
+}
+
+.navbar__logo { font-size: 1.2rem; }
 
 .navbar__links {
   display: flex;
@@ -144,6 +166,9 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .navbar__login { padding: 10px 20px; font-size: 0.9rem; }
 
 .navbar__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--navy);
@@ -151,8 +176,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   background: var(--red-light);
   border-radius: var(--radius-full);
 }
+.navbar__user-icon { width: 14px; height: 14px; color: var(--red-deep); flex-shrink: 0; }
 
 .lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   font-size: 0.82rem;
   font-weight: 700;
@@ -164,6 +193,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   cursor: pointer;
   transition: all var(--transition);
 }
+.lang-toggle svg { width: 14px; height: 14px; }
 .lang-toggle:hover {
   border-color: var(--red-deep);
   color: var(--red-deep);
@@ -175,21 +205,20 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 
 .navbar__burger {
   display: none;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   background: none;
   border: none;
-  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--navy);
+  padding: 0;
   cursor: pointer;
+  transition: background var(--transition);
 }
-.navbar__burger span {
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: var(--navy);
-  border-radius: 2px;
-  transition: all var(--transition);
-}
+.navbar__burger:hover { background: var(--gray-soft); }
+.navbar__burger svg { width: 22px; height: 22px; }
 
 .navbar__mobile-menu {
   display: flex;
@@ -237,14 +266,9 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .auth-card--wide { max-width: 600px; }
 
 .auth-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: 1.1rem;
-  color: var(--navy);
   margin-bottom: 32px;
 }
-.auth-logo strong { color: var(--red-deep); }
 
 .auth-title {
   font-family: var(--font-display);
@@ -434,11 +458,19 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .stats__item {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
   padding: 8px 24px;
   border-right: 1px solid rgba(255,255,255,0.1);
 }
 .stats__item:last-child { border-right: none; }
+
+.stats__icon {
+  width: 26px;
+  height: 26px;
+  color: var(--red-mid);
+  margin-bottom: 2px;
+}
 
 .stats__num {
   font-family: var(--font-display);
@@ -475,6 +507,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 }
 
 .step__card {
+  position: relative;
   padding: 36px 28px;
   background: var(--white);
   border-radius: var(--radius-lg);
@@ -496,6 +529,14 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   opacity: 0.12;
   line-height: 1;
   margin-bottom: 20px;
+}
+.step__icon {
+  position: absolute;
+  top: 38px;
+  right: 28px;
+  width: 26px;
+  height: 26px;
+  color: var(--red-deep);
 }
 .step__title {
   font-size: 1.05rem;
@@ -609,7 +650,6 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   gap: 16px;
 }
 .footer__logo { font-size: 1.1rem; color: var(--white); }
-.footer__logo strong { color: var(--red-deep); }
 .footer__copy { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
 
 @media (max-width: 900px) {
@@ -645,6 +685,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   background: var(--white); border: 1px solid var(--gray-border);
   border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 32px;
 }
+.filter-bar__icon { width: 18px; height: 18px; color: var(--gray-text); flex-shrink: 0; }
 .filter-bar select {
   padding: 10px 14px; border: 1.5px solid var(--gray-border);
   border-radius: var(--radius-sm); font-size: 0.9rem; color: var(--navy);
@@ -653,6 +694,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 .filter-bar select:focus { border-color: var(--red-deep); }
 .avail-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--navy); cursor: pointer; }
 .reset-btn { margin-left: auto; padding: 10px 20px; font-size: 0.88rem; }
+.reset-btn svg { width: 16px; height: 16px; }
 
 .donors-grid {
   display: grid;
@@ -676,22 +718,30 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   font-size: 1.1rem; font-weight: 800;
 }
 
-.status-tag { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full); }
+.status-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-full);
+}
+.status-tag svg { width: 12px; height: 12px; }
 .status-tag.active   { background: var(--red-light); color: var(--red-deep); }
 .status-tag.inactive { background: var(--gray-soft); color: var(--gray-text); }
 
 .donor-name { font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
 
 .donor-info { display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; color: var(--gray-text); margin-bottom: 12px; }
+.donor-info span { display: inline-flex; align-items: center; gap: 6px; }
+.donor-info svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--red-deep); }
 
 .donor-bio { font-size: 0.85rem; color: var(--gray-text); font-style: italic; border-left: 3px solid var(--red-deep); padding-left: 10px; margin-bottom: 14px; }
 
 .card-actions { display: flex; gap: 10px; }
 .btn-call, .btn-whatsapp {
-  flex: 1; padding: 10px; border-radius: var(--radius-md);
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px; border-radius: var(--radius-md);
   font-size: 0.85rem; font-weight: 600; text-align: center;
   text-decoration: none; transition: opacity 0.2s;
 }
+.btn-call svg, .btn-whatsapp svg { width: 15px; height: 15px; }
 .btn-call      { background: var(--red-light); color: var(--red-deep); border: 1px solid var(--red-deep); }
 .btn-whatsapp  { background: var(--gray-soft); color: var(--navy); border: 1px solid var(--gray-border); }
 .btn-call:hover, .btn-whatsapp:hover { opacity: 0.8; }
@@ -701,10 +751,12 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
 
 .pagination { display: flex; justify-content: center; align-items: center; gap: 16px; padding: 20px 0 48px; }
 .pagination button {
+  display: inline-flex; align-items: center; gap: 4px;
   padding: 10px 20px; border: 1.5px solid var(--gray-border);
   border-radius: var(--radius-full); background: var(--white);
   color: var(--navy); font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
+.pagination button svg { width: 16px; height: 16px; }
 .pagination button:hover:not(:disabled) { border-color: var(--red-deep); color: var(--red-deep); }
 .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
 .pagination span { font-weight: 600; color: var(--navy); }
@@ -869,6 +921,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 6px 12px;
   border-radius: var(--radius-full);
   font-size: 0.72rem;
@@ -876,6 +929,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+.request-tag svg { width: 12px; height: 12px; }
 
 .request-tag--urgent {
   background: var(--red-light);
@@ -900,18 +954,28 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   color: var(--gray-text);
   font-size: 0.9rem;
 }
+.request-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.request-meta svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--red-deep); }
 
 .request-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
   padding-left: 12px;
   border-left: 3px solid var(--red-deep);
   color: var(--navy);
 }
+.request-note svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; }
 
 .request-contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.9rem;
   color: var(--navy);
   font-weight: 600;
 }
+.request-contact svg { width: 14px; height: 14px; color: var(--red-deep); }
 
 .request-actions {
   display: grid;
@@ -1160,6 +1224,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   padding: 6px 12px;
   border-radius: var(--radius-full);
   font-size: 0.72rem;
@@ -1167,6 +1232,7 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+.dashboard-status svg { width: 12px; height: 12px; }
 
 .dashboard-status--active {
   background: var(--red-light);
@@ -1198,6 +1264,8 @@ button { cursor: pointer; font-family: var(--font-body); border: none; backgroun
   font-size: 0.9rem;
   margin-bottom: 14px;
 }
+.dashboard-request__meta span { display: inline-flex; align-items: center; gap: 6px; }
+.dashboard-request__meta svg { width: 14px; height: 14px; flex-shrink: 0; color: var(--red-deep); }
 
 .dashboard-request__delete {
   width: 100%;

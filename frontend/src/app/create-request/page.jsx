@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Send } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -117,7 +118,7 @@ function CreateRequestForm() {
               </div>
 
               <button type="submit" className="btn-primary auth-submit auth-submit--full" disabled={loading}>
-                {loading ? t.createRequest.loading : t.createRequest.submit}
+                <Send aria-hidden="true" /> {loading ? t.createRequest.loading : t.createRequest.submit}
               </button>
             </form>
           </section>

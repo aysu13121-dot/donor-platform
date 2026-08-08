@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import {
+  Activity, ArrowRight, Droplet, HeartHandshake, IdCard, MapPin, Search, UserPlus, Users,
+} from 'lucide-react';
 
+import BrandLogo from '@/components/BrandLogo';
 import Navbar from '@/components/Navbar';
 import { bloodCompatibility, useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
+
+const STEP_ICONS = [UserPlus, IdCard, HeartHandshake];
 
 export default function LandingPage() {
   const { t, lang } = useLanguage();
@@ -31,9 +37,9 @@ export default function LandingPage() {
 
   const statsDisplay = stats
     ? [
-        { num: `${stats.total_donors}+`, label: lang === 'az' ? 'Qeydiyyatlı donor' : 'Registered donors' },
-        { num: String(stats.active_requests), label: lang === 'az' ? 'Aktiv sorğu' : 'Active requests' },
-        { num: `${stats.total_cities}+`, label: lang === 'az' ? 'Şəhər' : 'Cities' },
+        { icon: Users, num: String(stats.total_donors), label: lang === 'az' ? 'Qeydiyyatlı donor' : 'Registered donors' },
+        { icon: Activity, num: String(stats.active_requests), label: lang === 'az' ? 'Aktiv sorğu' : 'Active requests' },
+        { icon: MapPin, num: String(stats.total_cities), label: lang === 'az' ? 'Şəhər' : 'Cities' },
       ]
     : [];
 
@@ -56,8 +62,12 @@ export default function LandingPage() {
           </h1>
           <p className="hero__sub">{t.hero.sub}</p>
           <div className="hero__actions">
-            <Link href="/signup" className="btn-primary hero__cta-main">{t.hero.cta1}</Link>
-            <Link href="/#blood-types" className="btn-outline">{t.hero.cta2}</Link>
+            <Link href="/signup" className="btn-primary hero__cta-main">
+              <Droplet aria-hidden="true" /> {t.hero.cta1}
+            </Link>
+            <Link href="/#blood-types" className="btn-outline">
+              <Search aria-hidden="true" /> {t.hero.cta2}
+            </Link>
           </div>
         </div>
       </section>
@@ -67,6 +77,7 @@ export default function LandingPage() {
           <div className="container stats__grid">
             {statsDisplay.map((s) => (
               <div key={s.label} className="stats__item">
+                <s.icon className="stats__icon" aria-hidden="true" />
                 <span className="stats__num">{s.num}</span>
                 <span className="stats__label">{s.label}</span>
               </div>
@@ -80,13 +91,17 @@ export default function LandingPage() {
           <h2 className="section__title">{t.how.title}</h2>
           <p className="section__sub">{t.how.sub}</p>
           <div className="steps__grid">
-            {t.how.steps.map((step) => (
-              <div key={step.num} className="step__card">
-                <span className="step__num">{step.num}</span>
-                <h3 className="step__title">{step.title}</h3>
-                <p className="step__desc">{step.desc}</p>
-              </div>
-            ))}
+            {t.how.steps.map((step, i) => {
+              const StepIcon = STEP_ICONS[i];
+              return (
+                <div key={step.num} className="step__card">
+                  <span className="step__num">{step.num}</span>
+                  <StepIcon className="step__icon" aria-hidden="true" />
+                  <h3 className="step__title">{step.title}</h3>
+                  <p className="step__desc">{step.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -120,13 +135,15 @@ export default function LandingPage() {
         <div className="container cta-banner__inner">
           <h2 className="cta-banner__title">{t.cta.title}</h2>
           <p className="cta-banner__sub">{t.cta.sub}</p>
-          <Link href="/signup" className="btn-primary cta-banner__btn">{t.cta.btn}</Link>
+          <Link href="/signup" className="btn-primary cta-banner__btn">
+            {t.cta.btn} <ArrowRight aria-hidden="true" />
+          </Link>
         </div>
       </section>
 
       <footer className="footer">
         <div className="container footer__inner">
-          <span className="footer__logo">🩸 Qan<strong>Donoru</strong></span>
+          <BrandLogo as="span" className="footer__logo" />
           <p className="footer__copy">{t.footer}</p>
         </div>
       </footer>

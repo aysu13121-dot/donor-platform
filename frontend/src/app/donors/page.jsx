@@ -1,6 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  Calendar, CheckCircle2, ChevronLeft, ChevronRight, MapPin, MessageCircle, Phone, RotateCcw,
+  SlidersHorizontal, XCircle,
+} from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
 import { useLanguage } from '@/context/LanguageContext';
@@ -60,6 +64,7 @@ export default function DonorsPage() {
         </div>
 
         <div className="filter-bar">
+          <SlidersHorizontal className="filter-bar__icon" aria-hidden="true" />
           <select value={bloodType} onChange={(e) => { setBloodType(e.target.value); setPage(1); }}>
             <option value="">{t.donors.allBloodTypes}</option>
             {BLOOD_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
@@ -80,7 +85,7 @@ export default function DonorsPage() {
           </label>
 
           <button type="button" className="btn-outline reset-btn" onClick={resetFilters}>
-            {t.donors.reset}
+            <RotateCcw aria-hidden="true" /> {t.donors.reset}
           </button>
         </div>
 
@@ -99,25 +104,28 @@ export default function DonorsPage() {
                   <div className="card-top">
                     <div className="blood-badge">{d.blood_type || '?'}</div>
                     <span className={d.is_available ? 'status-tag active' : 'status-tag inactive'}>
+                      {d.is_available ? <CheckCircle2 aria-hidden="true" /> : <XCircle aria-hidden="true" />}
                       {d.is_available ? t.donors.active : t.donors.inactive}
                     </span>
                   </div>
                   <h3 className="donor-name">{d.full_name || t.donors.donor}</h3>
                   <div className="donor-info">
-                    <span>{d.city || '--'}</span>
-                    <span>{t.donors.lastDonation}: {d.last_donation_date || t.donors.noInfo}</span>
+                    <span><MapPin aria-hidden="true" /> {d.city || '--'}</span>
+                    <span><Calendar aria-hidden="true" /> {t.donors.lastDonation}: {d.last_donation_date || t.donors.noInfo}</span>
                   </div>
                   {d.bio && <p className="donor-bio">{d.bio}</p>}
                   {d.phone && (
                     <div className="card-actions">
-                      <a href={`tel:${d.phone}`} className="btn-call">{t.donors.call}</a>
+                      <a href={`tel:${d.phone}`} className="btn-call">
+                        <Phone aria-hidden="true" /> {t.donors.call}
+                      </a>
                       <a
                         href={`https://wa.me/${d.phone.replace(/\D/g, '')}`}
                         target="_blank"
                         rel="noreferrer"
                         className="btn-whatsapp"
                       >
-                        WhatsApp
+                        <MessageCircle aria-hidden="true" /> WhatsApp
                       </a>
                     </div>
                   )}
@@ -128,11 +136,11 @@ export default function DonorsPage() {
             {totalPages > 1 && (
               <div className="pagination">
                 <button type="button" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-                  {t.donors.prev}
+                  <ChevronLeft aria-hidden="true" /> {t.donors.prev}
                 </button>
                 <span>{page} / {totalPages}</span>
                 <button type="button" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
-                  {t.donors.next}
+                  {t.donors.next} <ChevronRight aria-hidden="true" />
                 </button>
               </div>
             )}

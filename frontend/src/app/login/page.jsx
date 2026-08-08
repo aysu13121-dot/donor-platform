@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { LogIn } from 'lucide-react';
 
+import BrandLogo from '@/components/BrandLogo';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
@@ -36,7 +38,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Link href="/" className="auth-logo">🩸 Qan<strong>Donoru</strong></Link>
+        <BrandLogo className="auth-logo" />
         <h1 className="auth-title">{t.login.title}</h1>
         <p className="auth-sub">{t.login.sub}</p>
 
@@ -60,7 +62,7 @@ export default function LoginPage() {
             />
           </div>
           <button type="submit" className="btn-primary auth-submit" disabled={loading}>
-            {loading ? t.login.loading : t.login.btn}
+            <LogIn aria-hidden="true" /> {loading ? t.login.loading : t.login.btn}
           </button>
         </form>
 
