@@ -5,6 +5,7 @@ def test_signup_creates_user(client):
         'full_name': 'Test User',
         'blood_type': 'A+',
         'city': 'Bakı',
+        'phone': '+994501234567',
     })
     assert res.status_code == 201
     body = res.get_json()
@@ -14,7 +15,7 @@ def test_signup_creates_user(client):
 
 
 def test_signup_rejects_duplicate_email(client):
-    payload = {'email': 'dup@example.com', 'password': 'secret123'}
+    payload = {'email': 'dup@example.com', 'password': 'secret123', 'phone': '+994501234567'}
     first = client.post('/api/signup', json=payload)
     second = client.post('/api/signup', json=payload)
     assert first.status_code == 201
@@ -22,13 +23,32 @@ def test_signup_rejects_duplicate_email(client):
 
 
 def test_signup_rejects_invalid_email(client):
-    res = client.post('/api/signup', json={'email': 'not-an-email', 'password': 'secret123'})
+    res = client.post('/api/signup', json={'email': 'not-an-email', 'password': 'secret123', 'phone': '+994501234567'})
     assert res.status_code == 400
 
 
 def test_signup_rejects_short_password(client):
-    res = client.post('/api/signup', json={'email': 'short@example.com', 'password': 'abc'})
+    res = client.post('/api/signup', json={'email': 'short@example.com', 'password': 'abc', 'phone': '+994501234567'})
     assert res.status_code == 400
+
+
+def test_signup_rejects_missing_phone(client):
+    res = client.post('/api/signup', json={'email': 'nophone@example.com', 'password': 'secret123'})
+    assert res.status_code == 400
+
+
+def test_signup_rejects_invalid_phone_format(client):
+    res = client.post('/api/signup', json={
+        'email': 'badphone@example.com', 'password': 'secret123', 'phone': '12345',
+    })
+    assert res.status_code == 400
+
+
+def test_signup_accepts_local_phone_format(client):
+    res = client.post('/api/signup', json={
+        'email': 'localphone@example.com', 'password': 'secret123', 'phone': '0501234567',
+    })
+    assert res.status_code == 201
 
 
 def test_login_success_returns_token(client):
@@ -61,6 +81,11 @@ def test_me_update_persists_changes(client, donor_auth):
     body = res.get_json()
     assert body['user']['city'] == 'Gəncə'
     assert body['user']['is_available'] == 0
+
+
+def test_me_update_rejects_invalid_phone(client, donor_auth):
+    res = client.put('/api/me', headers=donor_auth['headers'], json={'phone': '12345'})
+    assert res.status_code == 400
 
 
 def test_me_delete_removes_account(client, donor_auth):

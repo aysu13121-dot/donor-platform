@@ -1,5 +1,7 @@
 import './globals.css';
 
+import { cookies } from 'next/headers';
+
 import { AuthProvider } from '@/context/AuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 
@@ -10,11 +12,17 @@ export const metadata = {
   icons: { icon: '/favicon.svg' },
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Dil seçimi cookie-dən oxunur ki, server ilk render-i birbaşa düzgün
+  // dildə göndərsin - client-də sonradan "AZ-dan EN-ə keçid" yanıb-sönməsi
+  // olmasın (bax: LanguageContext.jsx).
+  const cookieStore = await cookies();
+  const lang = cookieStore.get('lang')?.value === 'en' ? 'en' : 'az';
+
   return (
-    <html lang="az">
+    <html lang={lang}>
       <body>
-        <LanguageProvider>
+        <LanguageProvider initialLang={lang}>
           <AuthProvider>{children}</AuthProvider>
         </LanguageProvider>
       </body>

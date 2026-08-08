@@ -25,18 +25,20 @@ const T = {
     cta: { title: 'Bu gün başla', sub: '3 ayda bir neçə dəqiqən, bir insanın həyatı deməkdir.', btn: 'Donor ol' },
     footer: '© 2026 Donor.az. Bütün hüquqlar qorunur.',
     login: {
-      title: 'Xoş gəldin', sub: 'Hesabına daxil ol',
+      title: 'Xoş gəldin',
       email: 'E-poçt', password: 'Şifrə', btn: 'Daxil ol', loading: 'Yoxlanılır...',
       switch: 'Hesabın yoxdur?', switchLink: 'Qeydiyyatdan keç',
       serverErr: 'Bağlantı alınmadı, yenidən cəhd et.',
     },
     signup: {
-      title: 'Qoşul', sub: '30 saniyəyə qeydiyyatdan keç',
-      fullName: 'Ad Soyad', email: 'E-poçt', password: 'Şifrə',
+      title: 'Donor ol',
+      fullName: 'Ad Soyad', fullNamePlaceholder: 'Əli Məmmədov', email: 'E-poçt', password: 'Şifrə',
       phone: 'Telefon', bloodType: 'Qan qrupu', city: 'Şəhər', select: 'Seç',
       btn: 'Qeydiyyatdan keç', loading: 'Yaradılır...',
       switch: 'Artıq üzvsən?', switchLink: 'Daxil ol',
       serverErr: 'Bağlantı alınmadı, yenidən cəhd et.',
+      requiredError: 'Qan qrupu, şəhər və telefon nömrəsi mütləqdir.',
+      invalidPhone: 'Düzgün telefon nömrəsi daxil et (məs: +994 50 123 45 67).',
       passwordHint: 'Ən azı 4 simvol',
     },
     donors: {
@@ -119,7 +121,6 @@ const T = {
       units: 'vahid',
       urgency: 'Təciliyyət',
       requestsCount: (n) => `${n} sorğu`,
-      welcome: (name) => `Xoş gəldin, ${name}`,
       panel: 'Panel',
       navOverview: 'Baxış',
       quickLinks: 'Sürətli keçid',
@@ -147,7 +148,7 @@ const T = {
     nav: {
       home: 'Home',
       donors: 'Donors', requests: 'Requests', createRequest: 'New request',
-      dashboard: 'Dashboard', login: 'Log in', register: 'Sign up', logout: 'Log out',
+      dashboard: 'Dashboard', login: 'Sign in', register: 'Sign up', logout: 'Log out',
     },
     hero: {
       h1: 'One drop,', h1em: 'endless lives.',
@@ -162,18 +163,20 @@ const T = {
     cta: { title: 'Start today', sub: 'A few minutes every 3 months. One life, every time.', btn: 'Become a donor' },
     footer: '© 2026 Donor.az. All rights reserved.',
     login: {
-      title: 'Welcome back', sub: 'Log in to continue',
-      email: 'Email', password: 'Password', btn: 'Log in', loading: 'Checking...',
+      title: 'Welcome back',
+      email: 'Email', password: 'Password', btn: 'Sign in', loading: 'Checking...',
       switch: 'No account?', switchLink: 'Sign up',
       serverErr: "Couldn't connect. Try again.",
     },
     signup: {
-      title: 'Join in', sub: 'Sign up in 30 seconds',
-      fullName: 'Full name', email: 'Email', password: 'Password',
+      title: 'Become a donor',
+      fullName: 'Full name', fullNamePlaceholder: 'John Smith', email: 'Email', password: 'Password',
       phone: 'Phone', bloodType: 'Blood type', city: 'City', select: 'Choose',
       btn: 'Sign up', loading: 'Creating...',
-      switch: 'Already a member?', switchLink: 'Log in',
+      switch: 'Already a member?', switchLink: 'Sign in',
       serverErr: "Couldn't connect. Try again.",
+      requiredError: 'Blood type, city, and phone number are required.',
+      invalidPhone: 'Enter a valid phone number (e.g. +994 50 123 45 67).',
       passwordHint: 'At least 4 characters',
     },
     donors: {
@@ -256,7 +259,6 @@ const T = {
       units: 'units',
       urgency: 'Urgency',
       requestsCount: (n) => `${n} requests`,
-      welcome: (name) => `Welcome back, ${name}`,
       panel: 'Panel',
       navOverview: 'Overview',
       quickLinks: 'Quick links',
@@ -300,18 +302,33 @@ export function bloodCompatibility() {
 
 const LanguageContext = createContext(null);
 
-export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState('az');
+// `initialLang` server-də (root layout-da) `lang` cookie-sindən oxunur və
+// buraya ötürülür ki, ilk render-dən düzgün dil göstərilsin - əvvəllər
+// state həmişə 'az'-dan başlayıb yalnız mount-dan sonra (useEffect-də)
+// localStorage-ə baxıb düzəlirdi, bu da EN istifadəçilərdə hər səhifə
+// yenilənməsində qısa müddət AZ mətnin "yanıb sönməsinə" səbəb olurdu.
+export function LanguageProvider({ children, initialLang }) {
+  const [lang, setLang] = useState(initialLang === 'en' ? 'en' : 'az');
 
   useEffect(() => {
-    const stored = localStorage.getItem('lang');
-    if (stored === 'az' || stored === 'en') setLang(stored);
+    // Köhnə istifadəçilərdə seçim yalnız localStorage-də ola bilər (cookie
+    // hələ yazılmayıb) - bir dəfəlik oxuyub cookie-yə köçürürük ki, növbəti
+    // server-render-də də düzgün dil gəlsin.
+    if (!initialLang) {
+      const stored = localStorage.getItem('lang');
+      if (stored === 'az' || stored === 'en') {
+        setLang(stored);
+        document.cookie = `lang=${stored}; path=/; max-age=31536000`;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function toggle() {
     setLang((prev) => {
       const next = prev === 'az' ? 'en' : 'az';
       localStorage.setItem('lang', next);
+      document.cookie = `lang=${next}; path=/; max-age=31536000`;
       return next;
     });
   }

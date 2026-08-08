@@ -123,7 +123,7 @@ export default function LandingPage() {
                 <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t.blood.gives}</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {selected.gives.map((g) => (
-                    <span key={g} className="rounded-md bg-accent px-3 py-1.5 text-base font-semibold text-accent-foreground">
+                    <span key={g} className="rounded-md border border-border bg-card px-3 py-1.5 text-base font-semibold text-foreground">
                       {g}
                     </span>
                   ))}

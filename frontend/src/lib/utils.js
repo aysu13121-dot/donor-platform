@@ -7,3 +7,12 @@ import { twMerge } from 'tailwind-merge';
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
+
+// Azərbaycan mobil nömrə formatı: +994XXXXXXXXX və ya 0XXXXXXXXX (boşluq/tire
+// çıxarıldıqdan sonra). Signup və dashboard profil formaları paylaşır -
+// backend-dəki eyni qaydanın (auth.py PHONE_RE) frontend qarşılığıdır.
+const PHONE_RE = /^(\+994|0)\d{9}$/;
+
+export function isValidPhone(phone) {
+  return PHONE_RE.test(String(phone).replace(/[\s-]/g, ''));
+}

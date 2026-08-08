@@ -19,6 +19,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ApiError, api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
+import { isValidPhone } from '@/lib/utils';
 
 const STATUS_VARIANT = { fulfilled: 'success', cancelled: 'default', active: 'accent' };
 const STATUS_ICON = { fulfilled: CheckCircle2, cancelled: XCircle, active: TriangleAlert };
@@ -103,8 +104,12 @@ function DashboardContent() {
 
   async function handleSave(event) {
     event.preventDefault();
-    setSaving(true);
     setError('');
+    if (form.phone && !isValidPhone(form.phone)) {
+      setError(t.signup.invalidPhone);
+      return;
+    }
+    setSaving(true);
     try {
       const data = await api.put('/api/me', {
         full_name: form.full_name,

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogIn } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
 import Button from '@/components/ui/button';
@@ -41,8 +40,7 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <div className="w-full max-w-[440px] rounded-lg border border-border bg-card p-10 sm:p-12">
         <BrandLogo className="mb-8" />
-        <h1 className="mb-2 text-2xl font-semibold text-foreground">{t.login.title}</h1>
-        <p className="mb-8 text-sm text-muted-foreground">{t.login.sub}</p>
+        <h1 className="mb-8 text-2xl font-semibold text-foreground">{t.login.title}</h1>
 
         {error && (
           <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>
@@ -58,7 +56,7 @@ export default function LoginPage() {
             <Input id="password" type="password" name="password" placeholder="••••••••" value={form.password} onChange={handleChange} required />
           </div>
           <Button type="submit" size="lg" className="w-full justify-center" disabled={loading}>
-            <LogIn aria-hidden="true" /> {loading ? t.login.loading : t.login.btn}
+            {loading ? t.login.loading : t.login.btn}
           </Button>
         </form>
 
