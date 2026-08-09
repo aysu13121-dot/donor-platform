@@ -1,0 +1,88 @@
+/* ============================================================
+   TAILWIND + DESIGN TOKENS
+   Köhnə Next.js tətbiqindəki minimal ürün/dashboard tərz eynən köçürülüb:
+   nötr gri-beyaz zemin, tək tipoqrafiya (Inter), ölçülü qırmızı vurğu.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+:root {
+	--background: #fafafa;
+	--foreground: #18181b;
+
+	--card: #ffffff;
+	--card-foreground: #18181b;
+
+	--popover: #ffffff;
+	--popover-foreground: #18181b;
+
+	--primary: #c41e3a;
+	--primary-hover: #a8172f;
+	--primary-foreground: #ffffff;
+
+	--secondary: #f4f4f5;
+	--secondary-foreground: #3f3f46;
+
+	--muted: #f4f4f5;
+	--muted-foreground: #71717a;
+
+	--accent: #fdf2f3;
+	--accent-foreground: #c41e3a;
+
+	--destructive: #dc2626;
+	--destructive-foreground: #ffffff;
+
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #c41e3a;
+
+	--radius: 0.5rem;
+
+	--font-sans: 'Inter', system-ui, sans-serif;
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-foreground: var(--primary-foreground);
+
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	--font-sans: var(--font-sans);
+}
+
+@layer base {
+	body {
+		background: var(--color-background);
+		color: var(--color-foreground);
+		font-family: var(--font-sans);
+	}
+}
