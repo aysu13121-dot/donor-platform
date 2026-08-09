@@ -4,6 +4,10 @@ from app.extensions import db
 
 
 class User(db.Model):
+    """Qeyd: köhnə sxemdəki `role` (donor/recipient) sütunu bilərəkdən yoxdur -
+    frontend heç vaxt rol seçimi göndərmirdi, hər istifadəçi faktiki olaraq
+    donor idi, "recipient" isə heç bir yerdə istifadə olunmayan ölü kod idi."""
+
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -13,7 +17,6 @@ class User(db.Model):
     blood_type = db.Column(db.String(5))
     city = db.Column(db.String(100))
     phone = db.Column(db.String(20))
-    role = db.Column(db.String(20), nullable=False, default='donor')
     is_available = db.Column(db.Boolean, nullable=False, default=True)
     last_donation_date = db.Column(db.Date)
     bio = db.Column(db.Text)
@@ -40,7 +43,6 @@ class User(db.Model):
             'full_name': self.full_name,
             'blood_type': self.blood_type,
             'city': self.city,
-            'role': self.role,
             'is_available': self.is_available,
             'last_donation_date': self.last_donation_date.isoformat() if self.last_donation_date else None,
             'bio': self.bio,

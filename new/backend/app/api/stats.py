@@ -9,8 +9,8 @@ stats_bp = Blueprint('stats', __name__)
 @stats_bp.get('/stats')
 def get_stats():
     """Platformanın canlı statistika göstəriciləri."""
-    total_donors = db.session.query(User).filter_by(role='donor').count()
-    active_donors = db.session.query(User).filter_by(role='donor', is_available=True).count()
+    total_donors = db.session.query(User).count()
+    active_donors = db.session.query(User).filter_by(is_available=True).count()
     active_requests = db.session.query(BloodRequest).filter_by(status='active').count()
     fulfilled_requests = db.session.query(BloodRequest).filter_by(status='fulfilled').count()
     total_cities = (

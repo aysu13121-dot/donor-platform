@@ -45,3 +45,6 @@ class TestConfig(Config):
     SECRET_KEY_IS_FALLBACK = False
     CORS_ORIGINS = '*'
     JWT_COOKIE_CSRF_PROTECT = False
+    # Testlər eyni "IP"-dən (test client) saniyələr içində onlarla signup/signin
+    # edir - rate limit production üçündür, testləri süni 429-larla pozmasın.
+    RATELIMIT_ENABLED = False

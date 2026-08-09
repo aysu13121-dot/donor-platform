@@ -33,6 +33,9 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     jwt.init_app(app)
     limiter.init_app(app)
+
+    from app.jwt_callbacks import register_jwt_callbacks
+    register_jwt_callbacks()
     # Cookie-based auth kredensial (credentials) tələb edir - CORS "*" origin-lə
     # işləmir, ona görə CORS_ORIGINS .env-də açıq siyahı kimi göstərilməlidir.
     cors.init_app(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}}, supports_credentials=True)
