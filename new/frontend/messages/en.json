@@ -25,6 +25,12 @@
 	"cta_sub": "A few minutes every 3 months. One life, every time.",
 	"cta_btn": "Become a donor",
 
+	"stats_totalDonors": "Registered donors",
+	"stats_activeDonors": "Available donors",
+	"stats_activeRequests": "Active requests",
+	"stats_fulfilledRequests": "Fulfilled requests",
+	"stats_acrossCities": "Across {n} cities",
+
 	"footer": "© 2026 Donor.az. All rights reserved.",
 
 	"login_title": "Welcome back",

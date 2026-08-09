@@ -20,8 +20,12 @@ export default defineConfig([
 	},
 
 	{
-		// Override or add rule settings here, such as:
-		// 'svelte/button-has-type': 'error'
-		rules: {}
+		// Layihə TypeScript-siz (jsconfig.json + JSDoc) olduğu üçün SvelteKit-in
+		// generasiya etdiyi tipli route-lar yoxdur - `resolve()` bu qaydanın əsl
+		// faydası (kompilyasiya zamanı marşrut yoxlanması) bizdə tətbiq
+		// olunmur. Üstəlik paylaşılan `Button.svelte` həm daxili (məs.
+		// /dashboard), həm xarici (tel:, wa.me) href-lər üçün istifadə olunur -
+		// bu qayda hər ikisini eyni cür işarələyir.
+		rules: { 'svelte/no-navigation-without-resolve': 'off' }
 	}
 ]);

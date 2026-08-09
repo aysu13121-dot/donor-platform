@@ -25,6 +25,12 @@
 	"cta_sub": "3 ayda bir neçə dəqiqən, bir insanın həyatı deməkdir.",
 	"cta_btn": "Donor ol",
 
+	"stats_totalDonors": "Qeydiyyatlı donor",
+	"stats_activeDonors": "Hazır donor",
+	"stats_activeRequests": "Aktiv sorğu",
+	"stats_fulfilledRequests": "Tamamlanan sorğu",
+	"stats_acrossCities": "{n} şəhər üzrə",
+
 	"footer": "© 2026 Donor.az. Bütün hüquqlar qorunur.",
 
 	"login_title": "Xoş gəldin",
