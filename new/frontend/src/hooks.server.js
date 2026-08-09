@@ -1,5 +1,6 @@
 import { sequence } from '@sveltejs/kit/hooks';
-import { PUBLIC_API_URL } from '$env/static/public';
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET_KEY } from '$env/static/private';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 
@@ -15,25 +16,31 @@ const handleParaglide = ({ event, resolve }) =>
 	});
 
 // Backend JWT-ni httpOnly cookie-də saxlayır (bax: backend/app/config.py).
-// Hər sorğuda bu cookie-ni Flask-a ötürüb "kimdir" soruşuruq ki, auth
-// vəziyyəti SSR zamanı bəlli olsun - əvvəlki React tətbiqindəki `ready`
-// bayrağı və reload-da "yanlış vəziyyət yanıb-sönməsi" problemi bununla
-// kökündən aradan qalxır (server ilk render-i artıq düzgün göndərir).
+// Əvvəllər burada hər sorğuda `/api/me`-yə tam şəbəkə müraciəti gedirdi -
+// bu, hər səhifə keçidinə bir Neon sorğusu (backend-in DB baxışı) əlavə
+// edirdi. Ona ehtiyac yoxdur: token-in imzasını backend ilə paylaşılan
+// `JWT_SECRET_KEY` ilə burada, yerində yoxlamaq kifayətdir - yalnız
+// istifadəçinin ID-si lazımdır (kim olduğu, "daxil olub-olmadığı"), tam
+// profil yalnız ona həqiqətən ehtiyacı olan `/dashboard`-ın öz
+// `load()`-unda çəkilir (bax: routes/dashboard/+page.server.js).
+//
+// Güzəşt: hesab silinsə/bloklansa, bunu server yalnız /dashboard-a
+// girəndə görəcək - digər səhifələrdə köhnə token öz müddətinə (7 gün)
+// qədər "etibarlı" sayılacaq. Çıxışa (logout, cookie-nin silinməsinə)
+// təsiri yoxdur.
 /** @type {import('@sveltejs/kit').Handle} */
-async function handleAuth({ event, resolve }) {
+function handleAuth({ event, resolve }) {
 	event.locals.user = null;
 
 	const token = event.cookies.get('access_token_cookie');
 	if (token) {
 		try {
-			const res = await event.fetch(`${PUBLIC_API_URL}/api/me`, {
-				headers: { cookie: `access_token_cookie=${token}` }
-			});
-			if (res.ok) {
-				event.locals.user = (await res.json()).user;
+			const payload = jwt.verify(token, JWT_SECRET_KEY, { algorithms: ['HS256'] });
+			if (payload.type === 'access' && payload.sub) {
+				event.locals.user = { id: Number(payload.sub) };
 			}
 		} catch {
-			// Backend əlçatan deyilsə anonim kimi davam et - səhifə hələ də yüklənsin.
+			// Etibarsız/vaxtı bitmiş token - anonim kimi davam et.
 		}
 	}
 

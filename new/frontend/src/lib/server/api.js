@@ -12,11 +12,19 @@ export async function fetchApi(event, path, { method = 'GET', body } = {}) {
 	const token = event.cookies.get('access_token_cookie');
 	if (token) headers['cookie'] = `access_token_cookie=${token}`;
 
-	const res = await event.fetch(`${PUBLIC_API_URL}${path}`, {
-		method,
-		headers,
-		body: body !== undefined ? JSON.stringify(body) : undefined
-	});
-	const data = await res.json().catch(() => null);
-	return { ok: res.ok, status: res.status, data };
+	try {
+		const res = await event.fetch(`${PUBLIC_API_URL}${path}`, {
+			method,
+			headers,
+			body: body !== undefined ? JSON.stringify(body) : undefined
+		});
+		const data = await res.json().catch(() => null);
+		return { ok: res.ok, status: res.status, data };
+	} catch {
+		// Keçici şəbəkə xətası (backend məşğuldur, bağlantı kəsilib və s.) -
+		// bunu susdurmasaq `load()` içində atılıb SvelteKit-in 500 səhifəsinə
+		// çevrilir. Bunun əvəzinə "uğursuz oldu" cavabı qaytarırıq ki, çağıran
+		// tərəf öz xəta mesajını göstərsin.
+		return { ok: false, status: 0, data: { error: 'Server ilə əlaqə qurmaq mümkün olmadı.' } };
+	}
 }
