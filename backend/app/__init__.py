@@ -1,45 +1,17 @@
 import sys
 
-from flasgger import Swagger
-from flask import Flask, jsonify
-from flask_cors import CORS
+from apiflask import APIFlask
+from flask import jsonify
 
 from app.config import Config
-from app.models import db
+from app.extensions import cors, db, jwt, limiter, migrate
 
-SWAGGER_CONFIG = {
-    "headers": [],
-    "specs": [{
-        "endpoint": 'apispec_1',
-        "route": '/apispec_1.json',
-        "rule_filter": lambda rule: True,
-        "model_filter": lambda model: True,
-    }],
-    "static_url_path": "/flasgger_static",
-    "swagger_ui": True,
-    "specs_route": "/apidocs/",
-}
-
-SWAGGER_TEMPLATE = {
-    "swagger": "2.0",
-    "info": {
-        "title": "Donor.az API",
-        "description": "Donor və resipiyentlər üçün RESTful API sənədləşməsi",
-        "version": "3.0.0",
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header",
-            "description": 'JWT Authorization header. Nümunə: "Authorization: Bearer {token}"',
-        }
-    },
-}
+API_TITLE = 'Donor.az API'
+API_VERSION = '1.0.0'
 
 
 def create_app(config_class=Config):
-    app = Flask(__name__)
+    app = APIFlask(__name__, title=API_TITLE, version=API_VERSION)
     app.config.from_object(config_class)
     app.json.ensure_ascii = False
 
@@ -50,18 +22,28 @@ def create_app(config_class=Config):
             "Production-da mütləq SECRET_KEY təyin edin (.env.example-a baxın).",
             file=sys.stderr,
         )
-
-    CORS(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}})
-
-    if not app.config.get('TESTING'):
-        Swagger(app, config=SWAGGER_CONFIG, template=SWAGGER_TEMPLATE)
+    if not app.config.get('SQLALCHEMY_DATABASE_URI') and not app.config.get('TESTING'):
+        print(
+            "XƏBƏRDARLIQ: DATABASE_URL təyin olunmayıb - verilənlər bazasına qoşulmaq "
+            "mümkün olmayacaq (.env.example-a baxın).",
+            file=sys.stderr,
+        )
 
     db.init_app(app)
+    migrate.init_app(app, db)
+    jwt.init_app(app)
+    limiter.init_app(app)
 
-    from app.routes.auth import auth_bp
-    from app.routes.donors import donors_bp
-    from app.routes.requests import requests_bp
-    from app.routes.stats import stats_bp
+    from app.jwt_callbacks import register_jwt_callbacks
+    register_jwt_callbacks()
+    # Cookie-based auth kredensial (credentials) tələb edir - CORS "*" origin-lə
+    # işləmir, ona görə CORS_ORIGINS .env-də açıq siyahı kimi göstərilməlidir.
+    cors.init_app(app, resources={r"/api/*": {"origins": app.config['CORS_ORIGINS']}}, supports_credentials=True)
+
+    from app.api.auth import auth_bp
+    from app.api.donors import donors_bp
+    from app.api.requests import requests_bp
+    from app.api.stats import stats_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(donors_bp, url_prefix='/api')
