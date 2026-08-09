@@ -10,7 +10,7 @@ frontend/   SvelteKit tətbiqi
 ## Verilənlər bazası
 
 Layihə Postgres tələb edir (SQLite dəstəklənmir). Lokal quraşdırma/Docker
-əvəzinə **[Neon](https://neon.tech)** tövsiyə olunur — pulsuz, saniyələr
+əvəzinə **[Neon](https://neon.tech)** tövsiyə olunur - pulsuz, saniyələr
 içində layihə yaradıb bağlantı sətrini götürə bilərsiniz, Docker/yerli
 Postgres quraşdırmağa ehtiyac qalmır.
 
