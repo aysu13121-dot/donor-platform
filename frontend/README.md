@@ -1,42 +1,28 @@
-# sv
+# Donor.az — Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+SvelteKit tətbiqi. Ümumi quraşdırma və mühit dəyişənləri üçün repo
+kökündəki [README.md](../README.md)-ə baxın.
 
-## Creating a project
+## Əmrlər
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
+```bash
+npm install
+npm run dev      # dev server, http://localhost:5173
+npm run build    # production build
+npm run preview  # production build-i lokal baxmaq üçün
+npm run lint     # eslint
 ```
 
-To recreate this project with the same configuration:
+## Struktur
 
-```sh
-# recreate this project
-npx sv@0.17.0 create --template minimal --no-types --add eslint tailwindcss="plugins:none" sveltekit-adapter="adapter:node" paraglide="languageTags:az,en+demo:no" --no-download-check --install npm frontend
 ```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+src/
+  routes/              # səhifələr (fayl-əsaslı routing)
+  lib/
+    components/         # paylaşılan Svelte komponentləri (ui/, dashboard/)
+    server/api.js        # server-side (load funksiyaları üçün) API müştərisi
+    api.js                # client-side (mutasiyalar üçün) API müştərisi
+    constants.js, utils.js
+  hooks.server.js       # auth (JWT yoxlaması) + i18n middleware
+messages/               # az.json / en.json (paraglide mesaj kataloqu)
 ```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
