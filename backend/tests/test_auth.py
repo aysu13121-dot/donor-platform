@@ -52,7 +52,7 @@ def test_signup_accepts_local_phone_format(client):
 
 
 def test_login_success_returns_token(client):
-    res = client.post('/api/login', json={'email': 'leyla@example.com', 'password': 'password123'})
+    res = client.post('/api/signin', json={'email': 'leyla@example.com', 'password': 'password123'})
     assert res.status_code == 200
     body = res.get_json()
     assert 'token' in body
@@ -60,7 +60,7 @@ def test_login_success_returns_token(client):
 
 
 def test_login_wrong_password_fails(client):
-    res = client.post('/api/login', json={'email': 'leyla@example.com', 'password': 'wrong'})
+    res = client.post('/api/signin', json={'email': 'leyla@example.com', 'password': 'wrong'})
     assert res.status_code == 401
 
 
@@ -85,6 +85,16 @@ def test_me_update_persists_changes(client, donor_auth):
 
 def test_me_update_rejects_invalid_phone(client, donor_auth):
     res = client.put('/api/me', headers=donor_auth['headers'], json={'phone': '12345'})
+    assert res.status_code == 400
+
+
+def test_me_update_rejects_empty_blood_type(client, donor_auth):
+    res = client.put('/api/me', headers=donor_auth['headers'], json={'blood_type': ''})
+    assert res.status_code == 400
+
+
+def test_me_update_rejects_empty_city(client, donor_auth):
+    res = client.put('/api/me', headers=donor_auth['headers'], json={'city': ''})
     assert res.status_code == 400
 
 

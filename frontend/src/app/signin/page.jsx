@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 import BrandLogo from '@/components/BrandLogo';
+import GuestRoute from '@/components/GuestRoute';
 import Button from '@/components/ui/button';
 import { Input, Label } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 
-export default function LoginPage() {
+function LoginForm() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const data = await api.post('/api/login', form);
+      const data = await api.post('/api/signin', form);
       login(data.token, data.user);
       router.push('/dashboard');
     } catch (err) {
@@ -65,5 +66,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <GuestRoute>
+      <LoginForm />
+    </GuestRoute>
   );
 }

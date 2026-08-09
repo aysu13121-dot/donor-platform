@@ -12,6 +12,7 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Skeleton from '@/components/ui/skeleton';
+import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
@@ -19,6 +20,7 @@ import { cn } from '@/lib/utils';
 
 export default function DonorsPage() {
   const { t } = useLanguage();
+  const { token, isAuthenticated } = useAuth();
 
   const [donors, setDonors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,8 +33,11 @@ export default function DonorsPage() {
 
   useEffect(() => {
     fetchDonors();
+    // token dependency-sinə görə: auth vəziyyəti localStorage-dən oxunub
+    // "ready" olan kimi (bax: AuthContext) telefonlu/telefonsuz versiya
+    // arasında yenidən sorğu getsin.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bloodType, city, onlyAvail, page]);
+  }, [bloodType, city, onlyAvail, page, token]);
 
   async function fetchDonors() {
     setLoading(true);
@@ -43,7 +48,7 @@ export default function DonorsPage() {
       if (city) params.append('city', city);
       if (onlyAvail) params.append('is_available', 1);
 
-      const data = await api.get(`/api/donors?${params.toString()}`);
+      const data = await api.get(`/api/donors?${params.toString()}`, { token });
       setDonors(data.donors || []);
       setTotalPages(Math.max(data.pagination ? data.pagination.total_pages : 1, 1));
     } catch (err) {
@@ -65,8 +70,7 @@ export default function DonorsPage() {
       <Navbar />
       <div className="mx-auto max-w-6xl px-6">
         <div className="py-10">
-          <h1 className="mb-1.5 text-2xl font-semibold text-foreground md:text-3xl">{t.donors.title}</h1>
-          <p className="text-sm text-muted-foreground">{t.donors.sub}</p>
+          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{t.donors.title}</h1>
         </div>
 
         <div className="mb-8 flex flex-wrap items-center gap-6 rounded-lg border border-border p-4">
@@ -154,7 +158,12 @@ export default function DonorsPage() {
                   {d.bio && (
                     <p className="mb-3.5 border-l-2 border-border pl-2.5 text-sm text-muted-foreground">{d.bio}</p>
                   )}
-                  {d.phone && <ContactActions phone={d.phone} callLabel={t.donors.call} className="mt-auto" />}
+                  <ContactActions
+                    phone={d.phone}
+                    callLabel={t.donors.call}
+                    locked={!isAuthenticated}
+                    className="mt-auto"
+                  />
                 </Card>
               ))}
             </div>

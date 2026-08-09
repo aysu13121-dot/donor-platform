@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 import BrandLogo from '@/components/BrandLogo';
 import FilterSelect from '@/components/FilterSelect';
+import GuestRoute from '@/components/GuestRoute';
 import Button from '@/components/ui/button';
 import { Input, Label } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
@@ -14,7 +15,7 @@ import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
 import { isValidPhone } from '@/lib/utils';
 
-export default function SignupPage() {
+function SignupForm() {
   const [form, setForm] = useState({
     full_name: '', email: '', password: '',
     blood_type: '', city: '', phone: '',
@@ -107,9 +108,17 @@ export default function SignupPage() {
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          {t.signup.switch} <Link href="/login" className="font-semibold text-primary hover:underline">{t.signup.switchLink}</Link>
+          {t.signup.switch} <Link href="/signin" className="font-semibold text-primary hover:underline">{t.signup.switchLink}</Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <GuestRoute>
+      <SignupForm />
+    </GuestRoute>
   );
 }

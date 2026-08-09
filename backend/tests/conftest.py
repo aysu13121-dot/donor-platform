@@ -27,7 +27,7 @@ def client(app):
 @pytest.fixture
 def donor_auth(client):
     """Seed datasındakı hazır donor (leyla@example.com) ilə login olub token qaytarır."""
-    res = client.post('/api/login', json={'email': 'leyla@example.com', 'password': 'password123'})
+    res = client.post('/api/signin', json={'email': 'leyla@example.com', 'password': 'password123'})
     data = res.get_json()
     token = data['token']
     return {'token': token, 'user': data['user'], 'headers': {'Authorization': f'Bearer {token}'}}
@@ -36,7 +36,7 @@ def donor_auth(client):
 @pytest.fixture
 def second_donor_auth(client):
     """Sahiblik/icazə testləri üçün ikinci bir donor (elvin@example.com)."""
-    res = client.post('/api/login', json={'email': 'elvin@example.com', 'password': 'password123'})
+    res = client.post('/api/signin', json={'email': 'elvin@example.com', 'password': 'password123'})
     data = res.get_json()
     token = data['token']
     return {'token': token, 'user': data['user'], 'headers': {'Authorization': f'Bearer {token}'}}

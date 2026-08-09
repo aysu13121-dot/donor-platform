@@ -1,13 +1,15 @@
 from flask import Blueprint, jsonify, request
 
 from app.models import db
-from app.utils.auth import token_required
+from app.utils.auth import optional_token, token_required
+from app.utils.validators import is_valid_phone
 
 requests_bp = Blueprint('requests', __name__)
 
 
 @requests_bp.route('/requests', methods=['GET'])
-def get_requests():
+@optional_token
+def get_requests(current_user):
     """
     Qan Ehtiyacı Elanlarının Siyahısı (Filtrasiya İlə)
     ---
@@ -47,11 +49,19 @@ def get_requests():
         blood_type=blood_type, city=city, urgency=urgency, status=status,
         user_id=int(user_id) if user_id else None,
     )
+
+    # Əlaqə nömrəsi yalnız daxil olmuş istifadəçilərə göstərilir - açıq
+    # (login olunmamış) sorğularda kart-be-kart telefon sızdırılmır.
+    if not current_user:
+        for item in requests_list:
+            item.pop('contact_phone', None)
+
     return jsonify({'requests': requests_list, 'count': len(requests_list)}), 200
 
 
 @requests_bp.route('/requests/<int:request_id>', methods=['GET'])
-def get_request_detail(request_id):
+@optional_token
+def get_request_detail(current_user, request_id):
     """
     Qan Ehtiyacı Elanının Detalları
     ---
@@ -69,6 +79,8 @@ def get_request_detail(request_id):
     req_item = db.get_blood_request_by_id(request_id)
     if not req_item:
         return jsonify({'error': 'Qan ehtiyacı elanı tapılmadı.'}), 404
+    if not current_user:
+        req_item.pop('contact_phone', None)
     return jsonify({'request': req_item}), 200
 
 
@@ -116,6 +128,8 @@ def create_request(current_user):
 
     if not patient_name or not blood_type or not hospital or not city or not contact_phone:
         return jsonify({'error': 'patient_name, blood_type, hospital, city və contact_phone xanaları mütləqdir.'}), 400
+    if not is_valid_phone(contact_phone):
+        return jsonify({'error': 'Düzgün telefon nömrəsi daxil edin (məs: +994501234567).'}), 400
 
     new_req = db.create_blood_request(
         user_id=current_user['id'], patient_name=patient_name, blood_type=blood_type,
@@ -150,6 +164,9 @@ def update_request(current_user, request_id):
       403: {description: Bu elanı dəyişməyə icazəniz yoxdur}
     """
     data = request.get_json(silent=True) or {}
+    if data.get('contact_phone') and not is_valid_phone(data['contact_phone']):
+        return jsonify({'error': 'Düzgün telefon nömrəsi daxil edin (məs: +994501234567).'}), 400
+
     updated = db.update_blood_request(
         request_id=request_id, user_id=current_user['id'],
         patient_name=data.get('patient_name'), blood_type=data.get('blood_type'),

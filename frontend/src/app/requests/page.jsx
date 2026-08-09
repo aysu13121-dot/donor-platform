@@ -11,12 +11,14 @@ import Navbar from '@/components/Navbar';
 import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Skeleton from '@/components/ui/skeleton';
+import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { BLOOD_TYPES, CITIES } from '@/lib/constants';
 
 export default function RequestsPage() {
   const { t } = useLanguage();
+  const { token, isAuthenticated } = useAuth();
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,8 +29,11 @@ export default function RequestsPage() {
 
   useEffect(() => {
     fetchRequests();
+    // token dependency-sinə görə: auth vəziyyəti localStorage-dən oxunub
+    // "ready" olan kimi (bax: AuthContext) telefonlu/telefonsuz versiya
+    // arasında yenidən sorğu getsin.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bloodType, city, urgency]);
+  }, [bloodType, city, urgency, token]);
 
   async function fetchRequests() {
     setLoading(true);
@@ -39,7 +44,7 @@ export default function RequestsPage() {
       if (city) params.append('city', city);
       if (urgency) params.append('urgency', urgency);
 
-      const data = await api.get(`/api/requests?${params.toString()}`);
+      const data = await api.get(`/api/requests?${params.toString()}`, { token });
       setRequests(data.requests || []);
     } catch (err) {
       setError(err.message || t.requests.error);
@@ -59,8 +64,7 @@ export default function RequestsPage() {
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 pb-18 pt-10">
         <header className="mb-7 max-w-2xl">
-          <h1 className="mb-2 text-2xl font-semibold text-foreground md:text-3xl">{t.requests.title}</h1>
-          <p className="text-sm text-muted-foreground">{t.requests.sub}</p>
+          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{t.requests.title}</h1>
         </header>
 
         <div className="mb-8 flex flex-wrap items-center gap-6 rounded-lg border border-border p-4" aria-label={t.requests.filters}>
@@ -157,7 +161,12 @@ export default function RequestsPage() {
                   </p>
                 )}
 
-                <ContactActions phone={request.contact_phone} callLabel={t.requests.call} className="mt-auto" />
+                <ContactActions
+                  phone={request.contact_phone}
+                  callLabel={t.requests.call}
+                  locked={!isAuthenticated}
+                  className="mt-auto"
+                />
               </Card>
             ))}
           </section>

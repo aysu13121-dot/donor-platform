@@ -10,12 +10,14 @@ import Navbar from '@/components/Navbar';
 import StatCard from '@/components/dashboard/StatCard';
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAuth } from '@/context/AuthContext';
 import { bloodCompatibility, useLanguage } from '@/context/LanguageContext';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 export default function LandingPage() {
   const { t, lang } = useLanguage();
+  const { ready, isAuthenticated } = useAuth();
   const [stats, setStats] = useState(null);
   const [statsError, setStatsError] = useState(false);
   const [selectedType, setSelectedType] = useState('A+');
@@ -61,7 +63,9 @@ export default function LandingPage() {
           </h1>
           <p className="mx-auto mb-9 max-w-xl text-base leading-relaxed text-muted-foreground">{t.hero.sub}</p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button as={Link} href="/signup" size="lg">{t.hero.cta1}</Button>
+            {ready && !isAuthenticated && (
+              <Button as={Link} href="/signup" size="lg">{t.hero.cta1}</Button>
+            )}
             <Button as={Link} href="/#blood-types" variant="outline" size="lg">
               <Search aria-hidden="true" /> {t.hero.cta2}
             </Button>
@@ -144,20 +148,24 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA BANNER */}
-      <section className="border-t border-border bg-background py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <Card className="flex flex-col items-center gap-5 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
-            <div>
-              <h2 className="mb-1.5 text-xl font-semibold text-foreground">{t.cta.title}</h2>
-              <p className="text-sm text-muted-foreground">{t.cta.sub}</p>
-            </div>
-            <Button as={Link} href="/signup" size="lg" className="shrink-0">
-              {t.cta.btn} <ArrowRight aria-hidden="true" />
-            </Button>
-          </Card>
-        </div>
-      </section>
+      {/* CTA BANNER - yalnız qonaqlara göstərilir, artıq qeydiyyatlı istifadəçiyə yenidən "Donor ol" təklif etməyin mənası yoxdur.
+          `ready` yoxlanılır ki, auth vəziyyəti localStorage-dən oxunana qədər (ready=false) qısa müddət
+          səhv (qonaq) versiya "yanıb-sönməsin". */}
+      {ready && !isAuthenticated && (
+        <section className="border-t border-border bg-background py-16">
+          <div className="mx-auto max-w-6xl px-6">
+            <Card className="flex flex-col items-center gap-5 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
+              <div>
+                <h2 className="mb-1.5 text-xl font-semibold text-foreground">{t.cta.title}</h2>
+                <p className="text-sm text-muted-foreground">{t.cta.sub}</p>
+              </div>
+              <Button as={Link} href="/signup" size="lg" className="shrink-0">
+                {t.cta.btn} <ArrowRight aria-hidden="true" />
+              </Button>
+            </Card>
+          </div>
+        </section>
+      )}
 
       {/* FOOTER */}
       <footer className="border-t border-border py-8">

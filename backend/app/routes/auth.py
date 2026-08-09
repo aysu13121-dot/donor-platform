@@ -6,18 +6,11 @@ from flask import Blueprint, current_app, jsonify, request
 
 from app.models import db
 from app.utils.auth import token_required
+from app.utils.validators import is_valid_phone
 
 auth_bp = Blueprint('auth', __name__)
 
 EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
-# Azərbaycan mobil nömrəsi: +994XXXXXXXXX və ya 0XXXXXXXXX (boşluq/tire
-# çıxarıldıqdan sonra) - frontend-dəki eyni qaydanın (lib/utils.js isValidPhone)
-# backend qarşılığıdır.
-PHONE_RE = re.compile(r'^(\+994|0)\d{9}$')
-
-
-def _is_valid_phone(phone):
-    return bool(PHONE_RE.match(re.sub(r'[\s-]', '', phone)))
 
 
 def _issue_token(user):
@@ -77,7 +70,7 @@ def signup():
         return jsonify({'error': 'Düzgün email formatı daxil edin.'}), 400
     if len(password) < 4:
         return jsonify({'error': 'Şifrə ən azı 4 simvol olmalıdır.'}), 400
-    if not _is_valid_phone(phone):
+    if not is_valid_phone(phone):
         return jsonify({'error': 'Düzgün telefon nömrəsi daxil edin (məs: +994501234567).'}), 400
 
     if db.get_user_by_email(email):
@@ -98,8 +91,8 @@ def signup():
     return jsonify({'message': 'İstifadəçi uğurla qeydiyyatdan keçdi', 'token': token, 'user': user}), 201
 
 
-@auth_bp.route('/login', methods=['POST'])
-def login():
+@auth_bp.route('/signin', methods=['POST'])
+def signin():
     """
     İstifadəçi Girişi (Login)
     ---
@@ -180,8 +173,12 @@ def update_current_user(current_user):
       404: {description: İstifadəçi tapılmadı}
     """
     data = request.get_json(silent=True) or {}
-    if data.get('phone') and not _is_valid_phone(data['phone']):
+    if data.get('phone') and not is_valid_phone(data['phone']):
         return jsonify({'error': 'Düzgün telefon nömrəsi daxil edin (məs: +994501234567).'}), 400
+    if 'blood_type' in data and not (data.get('blood_type') or '').strip():
+        return jsonify({'error': 'Qan qrupu seçilməlidir.'}), 400
+    if 'city' in data and not (data.get('city') or '').strip():
+        return jsonify({'error': 'Şəhər seçilməlidir.'}), 400
 
     updated = db.update_user_profile(
         user_id=current_user['id'],

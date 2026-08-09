@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     if (ready && !isAuthenticated) {
-      router.replace('/login');
+      router.replace('/signin');
     }
   }, [ready, isAuthenticated, router]);
 

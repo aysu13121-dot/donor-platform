@@ -1,51 +1,44 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Activity, Building2, CheckCircle2, ClipboardList, Droplet, Inbox, MapPin, Save, Trash2,
-  TriangleAlert, XCircle,
+  Activity, CheckCircle2, ClipboardList, Droplet, Trash2, TriangleAlert, XCircle,
 } from 'lucide-react';
 
+import CreateRequestForm from '@/components/CreateRequestForm';
 import DashboardShell from '@/components/dashboard/DashboardShell';
-import OffersModal from '@/components/dashboard/OffersModal';
 import StatCard from '@/components/dashboard/StatCard';
+import ProfileForm from '@/components/ProfileForm';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input, Label, Select, Textarea } from '@/components/ui/input';
 import Skeleton from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { ApiError, api } from '@/lib/api';
-import { BLOOD_TYPES, CITIES } from '@/lib/constants';
-import { isValidPhone } from '@/lib/utils';
 
 const STATUS_VARIANT = { fulfilled: 'success', cancelled: 'default', active: 'accent' };
 const STATUS_ICON = { fulfilled: CheckCircle2, cancelled: XCircle, active: TriangleAlert };
 
 function DashboardContent() {
   const { t } = useLanguage();
-  const { token, updateUser, logout } = useAuth();
+  const { token, logout } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activePanel = searchParams.get('panel');
+  const showCreatePanel = activePanel === 'create';
+  const showProfilePanel = activePanel === 'profile';
 
   const [user, setUser] = useState(null);
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [requestsLoading, setRequestsLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [requestError, setRequestError] = useState('');
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
-  const [offersRequest, setOffersRequest] = useState(null);
-  const [form, setForm] = useState({
-    full_name: '',
-    blood_type: '',
-    city: '',
-    phone: '',
-    last_donation_date: '',
-    bio: '',
-    is_available: true,
-  });
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
     loadDashboard();
@@ -75,15 +68,6 @@ function DashboardContent() {
       const profileData = await api.get('/api/me', { token });
       const loadedUser = profileData.user;
       setUser(loadedUser);
-      setForm({
-        full_name: loadedUser.full_name || '',
-        blood_type: loadedUser.blood_type || '',
-        city: loadedUser.city || '',
-        phone: loadedUser.phone || '',
-        last_donation_date: loadedUser.last_donation_date || '',
-        bio: loadedUser.bio || '',
-        is_available: Boolean(loadedUser.is_available),
-      });
 
       const requestsData = await api.get(`/api/requests?status=all&user_id=${loadedUser.id}`, { token });
       setRequests(requestsData.requests || []);
@@ -97,39 +81,32 @@ function DashboardContent() {
     }
   }
 
-  function handleChange(event) {
-    const { name, value, type, checked } = event.target;
-    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  function closePanel() {
+    router.push('/dashboard');
   }
 
-  async function handleSave(event) {
-    event.preventDefault();
-    setError('');
-    if (form.phone && !isValidPhone(form.phone)) {
-      setError(t.signup.invalidPhone);
-      return;
-    }
-    setSaving(true);
-    try {
-      const data = await api.put('/api/me', {
-        full_name: form.full_name,
-        blood_type: form.blood_type,
-        city: form.city,
-        phone: form.phone,
-        last_donation_date: form.last_donation_date || null,
-        bio: form.bio || null,
-        is_available: form.is_available ? 1 : 0,
-      }, { token });
+  async function handleCreateSuccess() {
+    closePanel();
+    await loadDashboard();
+  }
 
-      const updatedUser = data.user || {};
-      setUser(updatedUser);
-      updateUser(updatedUser);
+  function handleProfileSuccess(updatedUser) {
+    setUser(updatedUser);
+  }
+
+  async function handleMarkFulfilled(requestId) {
+    setUpdatingId(requestId);
+    setRequestError('');
+    try {
+      const data = await api.put(`/api/requests/${requestId}`, { status: 'fulfilled' }, { token });
+      const updated = data.request;
+      setRequests((prev) => prev.map((item) => (item.id === requestId ? updated : item)));
     } catch (err) {
       if (!handleAuthError(err)) {
-        setError(err.message || t.dashboard.saveError);
+        setRequestError(err.message || t.dashboard.updateError);
       }
     } finally {
-      setSaving(false);
+      setUpdatingId(null);
     }
   }
 
@@ -151,13 +128,59 @@ function DashboardContent() {
   const activeCount = requests.filter((r) => r.status === 'active').length;
   const fulfilledCount = requests.filter((r) => r.status === 'fulfilled').length;
 
+  if (showCreatePanel) {
+    return (
+      <DashboardShell>
+        <div className="mb-5">
+          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{t.createRequest.badge}</h1>
+        </div>
+        <Card className="max-w-3xl p-6 sm:p-8">
+          <CreateRequestForm onSuccess={handleCreateSuccess} />
+        </Card>
+      </DashboardShell>
+    );
+  }
+
+  if (showProfilePanel) {
+    return (
+      <DashboardShell>
+        <div className="mb-5">
+          <h1 className="text-2xl font-semibold text-foreground md:text-3xl">{t.dashboard.profile}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{user?.email || ''}</p>
+        </div>
+        <Card className="max-w-2xl p-6 sm:p-8">
+          {loading ? (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Skeleton className="h-3 w-16" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+              <Skeleton className="h-11 w-full" />
+            </div>
+          ) : (
+            <ProfileForm user={user} onSuccess={handleProfileSuccess} />
+          )}
+        </Card>
+      </DashboardShell>
+    );
+  }
+
   return (
     <DashboardShell>
       <div className="mb-8">
-        <h1 className="mb-1.5 text-2xl font-semibold text-foreground md:text-3xl">
+        <h1 className="text-2xl font-semibold text-foreground md:text-3xl">
           {t.dashboard.overviewTitle}
         </h1>
-        <p className="text-sm text-muted-foreground">{t.dashboard.sub}</p>
       </div>
 
       {error && <div className="mb-5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{error}</div>}
@@ -165,203 +188,89 @@ function DashboardContent() {
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={ClipboardList} value={requests.length} label={t.dashboard.statTotal} loading={requestsLoading} />
-        <StatCard icon={Activity} value={activeCount} label={t.dashboard.statActive} tone="primary" loading={requestsLoading} />
+        <StatCard icon={Activity} value={activeCount} label={t.dashboard.statActive} loading={requestsLoading} />
         <StatCard icon={CheckCircle2} value={fulfilledCount} label={t.dashboard.statFulfilled} loading={requestsLoading} />
         <StatCard
           icon={Droplet}
-          value={form.is_available ? t.dashboard.active : t.dashboard.cancelled}
+          value={user?.is_available ? t.donors.active : t.donors.inactive}
           label={t.dashboard.statDonorStatus}
-          tone={form.is_available ? 'primary' : 'default'}
+          tone={user?.is_available ? 'primary' : 'default'}
           loading={loading}
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-        <Card className="xl:col-span-2">
-          <CardHeader>
-            <CardTitle>{t.dashboard.profile}</CardTitle>
-            <p className="text-sm text-muted-foreground">{user?.email || ''}</p>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Skeleton className="h-3 w-20" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Skeleton className="h-3 w-16" />
-                    <Skeleton className="h-10 w-full" />
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.dashboard.requests}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {requestsLoading ? (
+            <div className="flex flex-col">
+              {Array.from({ length: 4 }).map((_, i) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <div key={i} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
+                  <Skeleton className="size-8 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <Skeleton className="mb-1.5 h-3.5 w-32" />
+                    <Skeleton className="h-3 w-48" />
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Skeleton className="h-3 w-16" />
-                    <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-5 w-16 shrink-0" />
+                  <Skeleton className="size-8 shrink-0" />
+                </div>
+              ))}
+            </div>
+          ) : requests.length === 0 ? (
+            <div className="py-4 text-sm text-muted-foreground">{t.dashboard.noRequests}</div>
+          ) : (
+            <div className="flex flex-col">
+              {requests.map((item) => (
+                <div key={item.id} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
+                  <span className="shrink-0 rounded-md bg-accent px-2 py-0.5 text-xs font-bold text-primary">{item.blood_type}</span>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">{item.patient_name}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {item.hospital} | {item.city} | {item.units_needed} {t.requests.units} | {item.urgency === 'Urgent' ? t.requests.urgent : t.requests.normal}
+                    </p>
+                  </div>
+
+                  <Badge variant={STATUS_VARIANT[item.status] || 'default'} icon={STATUS_ICON[item.status]} className="shrink-0">
+                    {item.status === 'fulfilled' ? t.dashboard.fulfilled
+                      : item.status === 'cancelled' ? t.dashboard.cancelled
+                        : t.dashboard.active}
+                  </Badge>
+
+                  <div className="flex shrink-0 items-center gap-1">
+                    {item.status === 'active' && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleMarkFulfilled(item.id)}
+                        disabled={updatingId === item.id}
+                        aria-label={t.dashboard.fulfilled}
+                      >
+                        <CheckCircle2 className="hover:text-primary" aria-hidden="true" />
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="hover:border-destructive hover:text-destructive"
+                      onClick={() => handleDelete(item.id)}
+                      disabled={deleteLoadingId === item.id}
+                      aria-label={t.dashboard.delete}
+                    >
+                      <Trash2 aria-hidden="true" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <Skeleton className="h-3 w-16" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-                <Skeleton className="h-11 w-full" />
-              </div>
-            ) : (
-              <form className="flex flex-col gap-4" onSubmit={handleSave}>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="full_name">{t.dashboard.fullName}</Label>
-                  <Input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="blood_type">{t.dashboard.bloodType}</Label>
-                    <Select id="blood_type" name="blood_type" value={form.blood_type} onChange={handleChange}>
-                      <option value="">{t.dashboard.bloodType}</option>
-                      {BLOOD_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="city">{t.dashboard.city}</Label>
-                    <Select id="city" name="city" value={form.city} onChange={handleChange}>
-                      <option value="">{t.dashboard.city}</option>
-                      {CITIES.map((item) => <option key={item} value={item}>{item}</option>)}
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="phone">{t.dashboard.phone}</Label>
-                  <Input id="phone" name="phone" value={form.phone} onChange={handleChange} />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="last_donation_date">{t.dashboard.lastDonation}</Label>
-                  <Input
-                    id="last_donation_date" name="last_donation_date" type="date"
-                    value={form.last_donation_date || ''} onChange={handleChange}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between rounded-md border border-input px-3.5 py-2.5">
-                  <Label htmlFor="is_available" className="cursor-pointer">{t.dashboard.available}</Label>
-                  <input
-                    id="is_available" name="is_available" type="checkbox"
-                    className="size-4 accent-primary"
-                    checked={form.is_available} onChange={handleChange}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bio">{t.dashboard.bio}</Label>
-                  <Textarea id="bio" name="bio" rows="4" value={form.bio || ''} onChange={handleChange} />
-                </div>
-
-                <Button type="submit" className="w-full justify-center" disabled={saving || loading}>
-                  <Save aria-hidden="true" /> {saving ? t.dashboard.saving : t.dashboard.save}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="xl:col-span-3">
-          <CardHeader>
-            <CardTitle>{t.dashboard.requests}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {requestsLoading ? t.dashboard.loadingRequests : t.dashboard.requestsCount(requests.length)}
-            </p>
-          </CardHeader>
-          <CardContent>
-            {requestsLoading ? (
-              <div className="flex flex-col gap-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <div key={i} className="flex items-center gap-3 border-b border-border pb-3 last:border-0">
-                    <div className="flex flex-1 flex-col gap-1.5">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-40" />
-                    </div>
-                    <Skeleton className="h-5 w-16 shrink-0" />
-                    <Skeleton className="h-8 w-20 shrink-0" />
-                  </div>
-                ))}
-              </div>
-            ) : requests.length === 0 ? (
-              <div className="rounded-md bg-secondary p-4 text-sm text-muted-foreground">{t.dashboard.noRequests}</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
-                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tablePatient}</th>
-                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableLocation}</th>
-                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableStatus}</th>
-                      <th className="pb-3 pr-3 font-semibold">{t.dashboard.tableOffers}</th>
-                      <th className="pb-3 pl-3 text-right font-semibold">{t.dashboard.tableActions}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {requests.map((item) => (
-                      <tr key={item.id} className="align-top">
-                        <td className="py-3 pr-3">
-                          <p className="font-semibold text-foreground">{item.patient_name}</p>
-                          <p className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Droplet className="size-3 text-primary" aria-hidden="true" /> {item.blood_type}
-                            <span className="mx-1">·</span>
-                            {item.units_needed} {t.dashboard.units}
-                            <span className="mx-1">·</span>
-                            <TriangleAlert className="size-3" aria-hidden="true" /> {item.urgency}
-                          </p>
-                        </td>
-                        <td className="py-3 pr-3 text-muted-foreground">
-                          <p className="flex items-center gap-1"><Building2 className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {item.hospital}</p>
-                          <p className="flex items-center gap-1"><MapPin className="size-3.5 shrink-0 text-primary" aria-hidden="true" /> {item.city}</p>
-                        </td>
-                        <td className="py-3 pr-3">
-                          <Badge variant={STATUS_VARIANT[item.status] || 'default'} icon={STATUS_ICON[item.status]}>
-                            {item.status === 'fulfilled' ? t.dashboard.fulfilled
-                              : item.status === 'cancelled' ? t.dashboard.cancelled
-                                : t.dashboard.active}
-                          </Badge>
-                        </td>
-                        <td className="py-3 pr-3">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setOffersRequest(item)}
-                          >
-                            <Inbox aria-hidden="true" /> {t.dashboard.offers}
-                          </Button>
-                        </td>
-                        <td className="py-3 pl-3 text-right">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(item.id)}
-                            disabled={deleteLoadingId === item.id}
-                            aria-label={t.dashboard.delete}
-                          >
-                            <Trash2 className="text-muted-foreground hover:text-destructive" aria-hidden="true" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <OffersModal
-        requestId={offersRequest?.id}
-        patientName={offersRequest?.patient_name}
-        open={Boolean(offersRequest)}
-        onClose={() => setOffersRequest(null)}
-      />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </DashboardShell>
   );
 }
@@ -369,7 +278,9 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <DashboardContent />
+      <Suspense fallback={null}>
+        <DashboardContent />
+      </Suspense>
     </ProtectedRoute>
   );
 }

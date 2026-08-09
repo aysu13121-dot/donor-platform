@@ -1,12 +1,14 @@
 from flask import Blueprint, jsonify, request
 
 from app.models import db
+from app.utils.auth import optional_token
 
 donors_bp = Blueprint('donors', __name__)
 
 
 @donors_bp.route('/donors', methods=['GET'])
-def get_donors():
+@optional_token
+def get_donors(current_user):
     """
     Qan Donorlarının Siyahısı (Axtarış və Filtrasiya ilə)
     ---
@@ -57,6 +59,12 @@ def get_donors():
     total = db.count_donors(blood_type=blood_type, city=city, is_available=is_avail)
     total_pages = (total + limit - 1) // limit if total else 0
 
+    # Telefon nömrəsi yalnız daxil olmuş istifadəçilərə göstərilir - açıq
+    # (login olunmamış) sorğularda kart-be-kart telefon sızdırılmır.
+    if not current_user:
+        for donor in donors:
+            donor.pop('phone', None)
+
     return jsonify({
         'donors': donors,
         'count': len(donors),
@@ -65,7 +73,8 @@ def get_donors():
 
 
 @donors_bp.route('/donors/<int:donor_id>', methods=['GET'])
-def get_donor_detail(donor_id):
+@optional_token
+def get_donor_detail(current_user, donor_id):
     """
     Tək bir Donorun Ətraflı Profili
     ---
@@ -84,4 +93,6 @@ def get_donor_detail(donor_id):
     if not donor or donor.get('role') != 'donor':
         return jsonify({'error': 'Donor tapılmadı.'}), 404
     donor.pop('password_hash', None)
+    if not current_user:
+        donor.pop('phone', None)
     return jsonify({'donor': donor}), 200

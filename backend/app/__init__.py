@@ -60,14 +60,12 @@ def create_app(config_class=Config):
 
     from app.routes.auth import auth_bp
     from app.routes.donors import donors_bp
-    from app.routes.offers import offers_bp
     from app.routes.requests import requests_bp
     from app.routes.stats import stats_bp
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(donors_bp, url_prefix='/api')
     app.register_blueprint(requests_bp, url_prefix='/api')
-    app.register_blueprint(offers_bp, url_prefix='/api')
     app.register_blueprint(stats_bp, url_prefix='/api')
 
     @app.route('/api/health')

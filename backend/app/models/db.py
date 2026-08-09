@@ -65,19 +65,6 @@ def init_db():
         )
     ''')
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS donation_offers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            request_id INTEGER NOT NULL,
-            donor_id INTEGER NOT NULL,
-            message TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (request_id) REFERENCES blood_requests (id) ON DELETE CASCADE,
-            FOREIGN KEY (donor_id) REFERENCES users (id) ON DELETE CASCADE
-        )
-    ''')
-
     conn.commit()
 
     count = cursor.execute('SELECT COUNT(*) FROM users').fetchone()[0]
@@ -317,34 +304,6 @@ def delete_blood_request(request_id, user_id):
     deleted = cursor.rowcount > 0
     conn.close()
     return deleted
-
-
-# --- Donation offers ---
-
-def create_donation_offer(request_id, donor_id, message=None):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        'INSERT INTO donation_offers (request_id, donor_id, message) VALUES (?, ?, ?)',
-        (request_id, donor_id, message)
-    )
-    conn.commit()
-    offer_id = cursor.lastrowid
-    conn.close()
-    return offer_id
-
-
-def get_offers_for_request(request_id):
-    conn = get_db_connection()
-    offers = conn.execute('''
-        SELECT do.*, u.full_name as donor_name, u.blood_type, u.city, u.phone
-        FROM donation_offers do
-        JOIN users u ON do.donor_id = u.id
-        WHERE do.request_id = ?
-        ORDER BY do.created_at DESC
-    ''', (request_id,)).fetchall()
-    conn.close()
-    return [dict(o) for o in offers]
 
 
 # --- Stats ---
