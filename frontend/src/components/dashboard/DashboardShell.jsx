@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Home, LayoutDashboard, ListChecks, LogOut, Menu, Plus, Users, X,
+  Home, LayoutDashboard, ListChecks, LogOut, Menu, Plus, Users,
 } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
@@ -131,14 +131,7 @@ export default function DashboardShell({ children }) {
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-foreground/40" onClick={() => setOpen(false)} />
           <aside className="absolute inset-y-0 left-0 w-72 shadow-xl">
-            <div className="flex justify-end p-3">
-              <button type="button" onClick={() => setOpen(false)} className="flex size-8 items-center justify-center rounded-lg bg-card text-foreground shadow-sm">
-                <X className="size-4" aria-hidden="true" />
-              </button>
-            </div>
-            <div className="-mt-14">
-              <SidebarContent t={t} user={user} onLogout={handleLogout} onNavigate={() => setOpen(false)} activePanel={activePanel} />
-            </div>
+            <SidebarContent t={t} user={user} onLogout={handleLogout} onNavigate={() => setOpen(false)} activePanel={activePanel} />
           </aside>
         </div>
       )}

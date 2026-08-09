@@ -80,19 +80,23 @@ export default function Navbar() {
               {t.nav[link.key]}
             </Link>
           ))}
-          <LanguageSwitch className="w-fit text-base" />
-          {ready && (isAuthenticated ? (
-            <Button as={Link} href="/dashboard" size="sm" className="w-fit" onClick={() => setMenuOpen(false)}>
-              <LayoutDashboard aria-hidden="true" /> {t.nav.dashboard}
-            </Button>
-          ) : (
-            <div className="flex items-center gap-4">
-              <Link href="/signin" onClick={() => setMenuOpen(false)} className="text-base font-medium text-foreground">
-                {t.nav.login}
-              </Link>
-              <Button as={Link} href="/signup" size="sm" onClick={() => setMenuOpen(false)}>{t.nav.register}</Button>
+          {ready && (
+            <div className="flex items-center justify-between">
+              {isAuthenticated ? (
+                <Button as={Link} href="/dashboard" size="sm" className="w-fit" onClick={() => setMenuOpen(false)}>
+                  <LayoutDashboard aria-hidden="true" /> {t.nav.dashboard}
+                </Button>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <Link href="/signin" onClick={() => setMenuOpen(false)} className="text-base font-medium text-foreground">
+                    {t.nav.login}
+                  </Link>
+                  <Button as={Link} href="/signup" size="sm" onClick={() => setMenuOpen(false)}>{t.nav.register}</Button>
+                </div>
+              )}
+              <LanguageSwitch className="w-fit text-base" />
             </div>
-          ))}
+          )}
         </div>
       )}
     </nav>
