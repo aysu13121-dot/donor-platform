@@ -42,7 +42,7 @@
 
 <div class="min-h-screen bg-background">
 	<Navbar />
-	<div class="mx-auto max-w-6xl px-6">
+	<main class="mx-auto max-w-6xl px-6">
 		<div class="py-10">
 			<h1 class="text-2xl font-semibold text-foreground md:text-3xl">{m.donors_title()}</h1>
 		</div>
@@ -155,5 +155,5 @@
 				{/if}
 			</div>
 		{/if}
-	</div>
+	</main>
 </div>

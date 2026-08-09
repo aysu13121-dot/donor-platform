@@ -40,10 +40,10 @@
 
 <div class="min-h-screen bg-background">
 	<Navbar />
-	<main class="mx-auto max-w-6xl px-6 pb-18 pt-10">
-		<header class="mb-7 max-w-2xl">
+	<main class="mx-auto max-w-6xl px-6">
+		<div class="py-10">
 			<h1 class="text-2xl font-semibold text-foreground md:text-3xl">{m.requests_title()}</h1>
-		</header>
+		</div>
 
 		<div class="mb-8 flex flex-wrap items-center gap-6 rounded-lg border border-border p-4" aria-label={m.requests_filters()}>
 			<FilterSelect
@@ -79,11 +79,9 @@
 		</div>
 
 		{#if data.error}
-			<div class="mb-4.5 rounded-md border border-destructive/30 bg-red-50 px-4 py-3 text-sm text-destructive">{data.error}</div>
-		{/if}
-
-		{#if !data.error && data.requests.length === 0}
-			<div class="rounded-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground">{m.requests_empty()}</div>
+			<div class="py-16 text-center text-destructive">{data.error}</div>
+		{:else if data.requests.length === 0}
+			<div class="py-16 text-center text-muted-foreground">{m.requests_empty()}</div>
 		{:else if data.requests.length > 0}
 			<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
 				{#each data.requests as request (request.id)}
