@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify
+from apiflask import APIBlueprint
+from flask import jsonify
 
 from app.models import BloodRequest, User
 from app.extensions import db
 
-stats_bp = Blueprint('stats', __name__)
+stats_bp = APIBlueprint('stats', __name__, tag='Platforma Statistikası')
 
 
 @stats_bp.get('/stats')
