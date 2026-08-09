@@ -33,6 +33,31 @@ npm install
 npm run dev                  # http://localhost:5173
 ```
 
+## API
+
+Tam interaktiv sənədləşmə: server işə düşəndən sonra `http://localhost:5000/docs`.
+
+| Metod | Endpoint | Təsvir | Auth |
+|---|---|---|---|
+| POST | `/api/signup` | Qeydiyyat | — |
+| POST | `/api/signin` | Giriş | — |
+| POST | `/api/logout` | Çıxış | — |
+| GET | `/api/me` | Öz profilin | ✔ |
+| PUT | `/api/me` | Profili yenilə | ✔ |
+| DELETE | `/api/me` | Hesabı sil | ✔ |
+| GET | `/api/donors` | Donor siyahısı (filtr, səhifələmə) | ixt. |
+| GET | `/api/donors/{id}` | Donor detalı | ixt. |
+| GET | `/api/requests` | Sorğu siyahısı (filtr) | ixt. |
+| POST | `/api/requests` | Yeni sorğu yarat | ✔ |
+| GET | `/api/requests/{id}` | Sorğu detalı | ixt. |
+| PUT | `/api/requests/{id}` | Sorğunu yenilə (yalnız sahibi) | ✔ |
+| DELETE | `/api/requests/{id}` | Sorğunu sil (yalnız sahibi) | ✔ |
+| GET | `/api/stats` | Platforma statistikası | — |
+| GET | `/api/health` | Health check | — |
+
+"ixt." (ixtiyari) = auth olmadan da işləyir, amma daxil olmuş istifadəçiyə
+əlavə məlumat (telefon nömrəsi) göstərir.
+
 ## Struktur
 
 ```
