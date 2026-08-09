@@ -1,4 +1,4 @@
-# Donor.az — Qan Donorluğu Platforması
+# Donor.az - Qan Donorluğu Platforması
 
 Azərbaycan üzrə təcili qan donorluğu platforması.
 
@@ -6,6 +6,13 @@ Azərbaycan üzrə təcili qan donorluğu platforması.
 backend/    Flask API (APIFlask + SQLAlchemy + Postgres)
 frontend/   SvelteKit tətbiqi
 ```
+
+## Verilənlər bazası
+
+Layihə Postgres tələb edir (SQLite dəstəklənmir). Lokal quraşdırma/Docker
+əvəzinə **[Neon](https://neon.tech)** tövsiyə olunur — pulsuz, saniyələr
+içində layihə yaradıb bağlantı sətrini götürə bilərsiniz, Docker/yerli
+Postgres quraşdırmağa ehtiyac qalmır.
 
 ## Lokal işə salma
 
@@ -16,7 +23,20 @@ cd backend
 py -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements-dev.txt
-copy .env.example .env      # DATABASE_URL, SECRET_KEY, CORS_ORIGINS doldurun
+copy .env.example .env
+```
+
+`.env`-də doldurulmalı olanlar:
+
+| Dəyişən | Nə üçün |
+|---|---|
+| `DATABASE_URL` | Neon-dan götürdüyünüz Postgres bağlantı sətri |
+| `SECRET_KEY` | təsadüfi uzun sətir (`python -c "import secrets; print(secrets.token_hex(32))"`) |
+| `CORS_ORIGINS` | frontend ünvanı, lokal `http://localhost:5173` |
+
+Qalanları (`TEST_DATABASE_URL`, `FLASK_DEBUG`, `PORT`, `JWT_COOKIE_SECURE`, `JWT_EXPIRY_DAYS`) defolt dəyərləri ilə saxlanıla bilər.
+
+```bash
 set FLASK_APP=run.py
 flask db upgrade
 python run.py                # http://127.0.0.1:5000
@@ -28,10 +48,17 @@ Test: `pytest -q`
 
 ```bash
 cd frontend
-copy .env.example .env      # PUBLIC_API_URL + JWT_SECRET_KEY (backend-in SECRET_KEY-i ilə eyni)
+copy .env.example .env
 npm install
 npm run dev                  # http://localhost:5173
 ```
+
+`.env`-də doldurulmalı olanlar:
+
+| Dəyişən | Nə üçün |
+|---|---|
+| `PUBLIC_API_URL` | backend ünvanı, lokal `http://localhost:5000` |
+| `JWT_SECRET_KEY` | backend-in `.env`-indəki `SECRET_KEY` ilə **eyni** dəyər olmalıdır |
 
 ## API
 
@@ -71,5 +98,3 @@ frontend/src/
   lib/           komponentlər, api müştəriləri
   hooks.server.js  auth + i18n
 ```
-
-Seed/demo data yoxdur — istifadəçilər yalnız `/signup` ilə yaranır.
