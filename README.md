@@ -85,6 +85,30 @@ Tam interaktiv sənədləşmə: server işə düşəndən sonra `http://localhos
 "ixt." (ixtiyari) = auth olmadan da işləyir, amma daxil olmuş istifadəçiyə
 əlavə məlumat (telefon nömrəsi) göstərir.
 
+## Deploy
+
+Neon (DB) artıq bulud üzərindədir. Backend (`gunicorn`, `Procfile` hazır) və
+frontend (`adapter-node`, `node build`) ayrı-ayrı "web service" kimi istənilən
+platformada (Railway, Render və s.) qaldırıla bilər.
+
+Öz domenin yoxdursa (platformanın verdiyi təsadüfi subdomain-lər istifadə
+olunacaqsa), backend `.env`-də:
+
+```
+JWT_COOKIE_SECURE=True
+JWT_COOKIE_SAMESITE=None
+CORS_ORIGINS=<frontend-in prod ünvanı>
+```
+
+qoyulmalıdır - fərqli subdomain-lər fərqli "site" sayıldığı üçün brauzer
+`Lax` cookie-ni cross-site sorğularda göndərmir. Öz domenin olub frontend/
+backend-i onun subdomain-lərinə (`app.sayt.az` + `api.sayt.az`) qoysan, bu
+addım lazım deyil - defolt `Lax` kifayətdir.
+
+Frontend `.env`-də əlavə olaraq `ORIGIN=<öz prod ünvanı>` lazımdır
+(`adapter-node` tələb edir). Deploy sonrası bir dəfə `flask db upgrade`
+işə salınmalıdır ki, Neon-da cədvəllər yaransın.
+
 ## Struktur
 
 ```

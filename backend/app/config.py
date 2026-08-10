@@ -28,7 +28,16 @@ class Config:
     # --- JWT (cookie-based) ---
     JWT_TOKEN_LOCATION = ['cookies']
     JWT_COOKIE_SECURE = os.getenv('JWT_COOKIE_SECURE', 'False').lower() in ('true', '1', 't')
-    JWT_COOKIE_SAMESITE = 'Lax'
+    # Frontend və backend ayrı domain/subdomain-lərdə deploy olunubsa (məs.
+    # platformanın verdiyi təsadüfi subdomain-lər - fərqli "site" sayılır),
+    # brauzer "Lax" cookie-ni cross-site fetch/XHR sorğularında göndərmir.
+    # Bu halda .env-də JWT_COOKIE_SAMESITE=None qoyulmalıdır - amma bu, yalnız
+    # JWT_COOKIE_SECURE=True olanda brauzerlər tərəfindən qəbul edilir (bax
+    # aşağıdakı yoxlama). Eyni domain altında subdomain-lərlə (məs. app.
+    # sayt.az + api.sayt.az) "Lax" kifayətdir və dəyişməyə ehtiyac yoxdur.
+    JWT_COOKIE_SAMESITE = os.getenv('JWT_COOKIE_SAMESITE', 'Lax')
+    if JWT_COOKIE_SAMESITE == 'None' and not JWT_COOKIE_SECURE:
+        raise RuntimeError('JWT_COOKIE_SAMESITE=None üçün JWT_COOKIE_SECURE=True olmalıdır (brauzer tələbidir).')
     JWT_ACCESS_COOKIE_PATH = '/'
     JWT_COOKIE_CSRF_PROTECT = True
     JWT_CSRF_IN_COOKIES = True
