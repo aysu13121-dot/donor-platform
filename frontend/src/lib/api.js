@@ -1,5 +1,3 @@
-import { PUBLIC_API_URL } from '$env/static/public';
-
 export class ApiError extends Error {
 	constructor(message, status) {
 		super(message);
@@ -41,7 +39,11 @@ async function request(path, { method = 'GET', body } = {}) {
 
 	let res;
 	try {
-		res = await fetch(`${PUBLIC_API_URL}${path}`, {
+		// Backend-ə birbaşa yox, `routes/api/[...path]/+server.js` proksisinin
+		// üstündən (özümüzün origin-imizə, relative path ilə) - bax o faylın
+		// başındakı izaha: fərqli domendə deploy olunanda cookie problemi
+		// yaratmamaq üçün.
+		res = await fetch(path, {
 			method,
 			headers,
 			credentials: 'include',
