@@ -194,7 +194,7 @@
 
 				<!-- Resources -->
 				<div>
-					<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">Resurslar</p>
+					<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">{m.footer_resources()}</p>
 					<ul class="space-y-2">
 						<li><a href="/locations" class="text-sm text-muted-foreground transition-colors hover:text-primary">{m.footer_locations()}</a></li>
 						<li><a href="/eligibility" class="text-sm text-muted-foreground transition-colors hover:text-primary">{m.footer_eligibility()}</a></li>
@@ -204,7 +204,7 @@
 
 				<!-- Legal -->
 				<div>
-					<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">Hüquqi</p>
+					<p class="mb-3 text-xs font-semibold uppercase tracking-wider text-foreground">{m.footer_legal_heading()}</p>
 					<ul class="space-y-2">
 						<li><a href="/terms" class="text-sm text-muted-foreground transition-colors hover:text-primary">{m.footer_terms()}</a></li>
 						<li><a href="/privacy" class="text-sm text-muted-foreground transition-colors hover:text-primary">{m.footer_privacy()}</a></li>
