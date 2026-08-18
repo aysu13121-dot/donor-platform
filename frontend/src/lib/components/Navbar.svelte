@@ -6,29 +6,32 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import LanguageSwitch from '$lib/components/LanguageSwitch.svelte';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { cn } from '$lib/utils';
 
 	const NAV_LINKS = [
 		{ href: '/', key: 'home', label: m.nav_home },
 		{ href: '/donors', key: 'donors', label: m.nav_donors },
-		{ href: '/requests', key: 'requests', label: m.nav_requests }
+		{ href: '/requests', key: 'requests', label: m.nav_requests },
+		{ href: '/about', key: 'about', label: m.nav_about },
 	];
 
 	let menuOpen = $state(false);
-
-	// `data.user` root `+layout.server.js`-də SSR zamanı doldurulur - əvvəlki
-	// React tətbiqindəki `ready` bayrağına ehtiyac yoxdur, ilk render-dən
-	// düzgün auth vəziyyəti göstərilir.
 	let isAuthenticated = $derived(Boolean(page.data.user));
 	let isActive = (path) => page.url.pathname === path;
 </script>
+
+<!-- OFFICIAL TOP BAR -->
+<div class="border-b border-border bg-secondary px-6 py-1.5 text-center text-[11px] font-medium text-muted-foreground">
+	🇦🇿 Donor.az — Azərbaycanın Qan Donorluğu Platforması
+</div>
 
 <nav class="sticky top-0 z-50 border-b border-border bg-background">
 	<div class="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
 		<BrandLogo class="lg:justify-self-start" />
 
-		<ul class="hidden items-center gap-9 lg:flex lg:justify-self-center">
+		<ul class="hidden items-center gap-7 lg:flex lg:justify-self-center">
 			{#each NAV_LINKS as link (link.key)}
 				<li>
 					<a
@@ -44,7 +47,8 @@
 			{/each}
 		</ul>
 
-		<div class="hidden items-center gap-5 lg:flex lg:justify-self-end">
+		<div class="hidden items-center gap-3 lg:flex lg:justify-self-end">
+			<ThemeToggle />
 			<LanguageSwitch />
 			{#if isAuthenticated}
 				<Button href="/dashboard" size="sm">
@@ -94,7 +98,10 @@
 						<Button href="/signup" size="sm" onclick={() => (menuOpen = false)}>{m.nav_register()}</Button>
 					</div>
 				{/if}
-				<LanguageSwitch class="w-fit text-base" />
+				<div class="flex items-center gap-2">
+					<ThemeToggle />
+					<LanguageSwitch class="w-fit text-base" />
+				</div>
 			</div>
 		</div>
 	{/if}
