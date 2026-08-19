@@ -1,5 +1,6 @@
 <script>
 	import Home from '@lucide/svelte/icons/home';
+	import Info from '@lucide/svelte/icons/info';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
 	import ListChecks from '@lucide/svelte/icons/list-checks';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -11,13 +12,15 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import LanguageSwitch from '$lib/components/LanguageSwitch.svelte';
+	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import { api } from '$lib/api';
 	import { cn } from '$lib/utils';
 
 	const QUICK_LINKS = [
 		{ href: '/', key: 'home', icon: Home, label: m.nav_home },
 		{ href: '/donors', key: 'donors', icon: Users, label: m.nav_donors },
-		{ href: '/requests', key: 'requests', icon: ListChecks, label: m.nav_requests }
+		{ href: '/requests', key: 'requests', icon: ListChecks, label: m.nav_requests },
+		{ href: '/about', key: 'about', icon: Info, label: m.nav_about }
 	];
 
 	const NAV_ITEM_BASE = 'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] transition-colors';
@@ -46,7 +49,10 @@
 	<div class="flex h-full flex-col bg-card">
 		<div class="flex items-center justify-between px-5 pb-4 pt-6">
 			<BrandLogo />
-			<LanguageSwitch />
+			<div class="flex items-center gap-1">
+				<ThemeToggle />
+				<LanguageSwitch />
+			</div>
 		</div>
 
 		<nav class="flex-1 overflow-y-auto px-3">

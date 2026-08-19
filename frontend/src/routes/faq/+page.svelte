@@ -1,6 +1,8 @@
 <script>
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import * as m from '$lib/paraglide/messages.js';
 	import Navbar from '$lib/components/Navbar.svelte';
+	import { cn } from '$lib/utils';
 
 	const FAQS = [
 		{ q: m.faq_q1, a: m.faq_a1 },
@@ -21,7 +23,7 @@
 </script>
 
 <svelte:head>
-	<title>{m.faq_title()} — Donor.az</title>
+	<title>{m.faq_title()} - Donor.az</title>
 </svelte:head>
 
 <Navbar />
@@ -29,8 +31,7 @@
 <main class="mx-auto max-w-3xl px-6 py-16">
 
 	<div class="mb-12 text-center">
-		<h1 class="mb-3 text-3xl font-semibold text-foreground">{m.faq_title()}</h1>
-		<p class="text-sm text-muted-foreground">{m.faq_sub()}</p>
+		<h1 class="text-3xl font-semibold text-foreground">{m.faq_title()}</h1>
 	</div>
 
 	<div class="space-y-3">
@@ -42,9 +43,10 @@
 					onclick={() => toggle(i)}
 				>
 					<span class="text-sm font-medium text-foreground">{faq.q()}</span>
-					<span class="ml-4 shrink-0 text-lg font-light text-muted-foreground">
-						{openIndex === i ? '−' : '+'}
-					</span>
+					<ChevronDown
+						class={cn('ml-4 size-4 shrink-0 text-muted-foreground transition-transform', openIndex === i && 'rotate-180')}
+						aria-hidden="true"
+					/>
 				</button>
 				{#if openIndex === i}
 					<div class="border-t border-border px-6 py-5">

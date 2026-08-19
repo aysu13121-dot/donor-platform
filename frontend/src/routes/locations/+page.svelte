@@ -23,7 +23,7 @@
 </script>
 
 <svelte:head>
-	<title>{m.locations_title()} — Donor.az</title>
+	<title>{m.locations_title()} - Donor.az</title>
 </svelte:head>
 
 <Navbar />
@@ -31,12 +31,7 @@
 <main class="mx-auto max-w-3xl px-6 py-16">
 
 	<div class="mb-12 text-center">
-		<h1 class="mb-3 text-3xl font-semibold text-foreground">{m.locations_title()}</h1>
-		<p class="text-sm text-muted-foreground">{m.locations_sub()}</p>
-	</div>
-
-	<div class="mb-6 rounded-lg border border-border bg-secondary/40 px-5 py-3">
-		<p class="text-xs text-muted-foreground">⚠️ {m.locations_note()}</p>
+		<h1 class="text-3xl font-semibold text-foreground">{m.locations_title()}</h1>
 	</div>
 
 	{#each [
@@ -56,7 +51,7 @@
 						</div>
 						<a
 							href="tel:{loc.phone}"
-							class="ml-4 shrink-0 rounded-lg border border-border bg-secondary px-4 py-2 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+							class="ml-4 shrink-0 rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
 						>
 							{m.locations_call()}
 						</a>

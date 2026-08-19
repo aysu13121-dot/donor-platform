@@ -3,13 +3,13 @@
 </script>
 
 <svelte:head>
-	<title>Məxfilik Siyasəti — Donor.az</title>
+	<title>Məxfilik siyasəti - Donor.az</title>
 </svelte:head>
 
 <Navbar />
 
 <main class="mx-auto max-w-3xl px-6 py-16">
-	<h1 class="mb-8 text-3xl font-semibold text-foreground">Məxfilik Siyasəti</h1>
+	<h1 class="mb-8 text-3xl font-semibold text-foreground">Məxfilik siyasəti</h1>
 
 	<div class="space-y-8 text-sm leading-relaxed text-muted-foreground">
 		<section>

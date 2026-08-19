@@ -1,6 +1,8 @@
 <script>
 	import Save from '@lucide/svelte/icons/save';
-	import { invalidateAll } from '$app/navigation';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import X from '@lucide/svelte/icons/x';
+	import { goto, invalidateAll } from '$app/navigation';
 	import * as m from '$lib/paraglide/messages.js';
 	import FilterSelect from '$lib/components/FilterSelect.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -24,6 +26,10 @@
 	});
 	let error = $state('');
 	let saving = $state(false);
+
+	let confirmingDelete = $state(false);
+	let deleting = $state(false);
+	let deleteError = $state('');
 
 	async function handleSubmit(event) {
 		event.preventDefault();
@@ -59,6 +65,19 @@
 			error = err instanceof ApiError ? err.message : m.dashboard_updateError();
 		} finally {
 			saving = false;
+		}
+	}
+
+	async function handleDeleteAccount() {
+		deleteError = '';
+		deleting = true;
+		try {
+			await api.delete('/api/me');
+			await api.post('/api/logout');
+			await goto('/', { invalidateAll: true });
+		} catch (err) {
+			deleteError = err instanceof ApiError ? err.message : m.dashboard_deleteError();
+			deleting = false;
 		}
 	}
 </script>
@@ -121,4 +140,56 @@
 			{saving ? m.dashboard_saving() : m.dashboard_save()}
 		</Button>
 	</form>
+
+	<div class="mt-8 border-t border-border pt-6">
+		<button
+			type="button"
+			onclick={() => (confirmingDelete = true)}
+			class="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 px-6 text-sm font-medium text-destructive transition-colors hover:bg-destructive/5"
+		>
+			<Trash2 class="size-4" aria-hidden="true" />
+			{m.dashboard_deleteAccount()}
+		</button>
+	</div>
 </div>
+
+{#if confirmingDelete}
+	<div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+		<div class="absolute inset-0 bg-foreground/40" onclick={() => !deleting && (confirmingDelete = false)} aria-hidden="true"></div>
+
+		<div class="relative w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl">
+			<button
+				type="button"
+				onclick={() => (confirmingDelete = false)}
+				disabled={deleting}
+				aria-label={m.createRequest_cancel()}
+				class="absolute right-4 top-4 flex size-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
+			>
+				<X class="size-4" aria-hidden="true" />
+			</button>
+
+			<h3 class="mb-2 text-center text-base font-semibold text-foreground">{m.dashboard_deleteAccount()}</h3>
+			<p class="mb-5 text-center text-sm leading-relaxed text-muted-foreground">{m.dashboard_deleteAccountWarning()}</p>
+
+			{#if deleteError}
+				<p class="mb-4 text-center text-sm text-destructive">{deleteError}</p>
+			{/if}
+
+			<div class="flex gap-3">
+				<Button type="button" variant="destructive" size="sm" class="flex-1 justify-center" onclick={handleDeleteAccount} disabled={deleting}>
+					{deleting ? m.dashboard_saving() : m.dashboard_deleteAccountConfirm()}
+				</Button>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					class="flex-1 justify-center hover:bg-transparent hover:border-primary hover:text-primary"
+					onclick={() => (confirmingDelete = false)}
+					disabled={deleting}
+				>
+					{m.createRequest_cancel()}
+				</Button>
+			</div>
+		</div>
+	</div>
+{/if}

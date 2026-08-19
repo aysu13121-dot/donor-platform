@@ -3,13 +3,13 @@
 </script>
 
 <svelte:head>
-	<title>İstifadə Şərtləri — Donor.az</title>
+	<title>İstifadə şərtləri - Donor.az</title>
 </svelte:head>
 
 <Navbar />
 
 <main class="mx-auto max-w-3xl px-6 py-16">
-	<h1 class="mb-8 text-3xl font-semibold text-foreground">İstifadə Şərtləri</h1>
+	<h1 class="mb-8 text-3xl font-semibold text-foreground">İstifadə şərtləri</h1>
 
 	<div class="space-y-8 text-sm leading-relaxed text-muted-foreground">
 		<section>

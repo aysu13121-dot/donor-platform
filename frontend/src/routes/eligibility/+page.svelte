@@ -40,7 +40,7 @@
 </script>
 
 <svelte:head>
-	<title>{m.eligibility_title()} — Donor.az</title>
+	<title>{m.eligibility_title()} - Donor.az</title>
 </svelte:head>
 
 <Navbar />
@@ -48,8 +48,7 @@
 <main class="mx-auto max-w-2xl px-6 py-16">
 
 	<div class="mb-12 text-center">
-		<h1 class="mb-3 text-3xl font-semibold text-foreground">{m.eligibility_title()}</h1>
-		<p class="text-sm text-muted-foreground">{m.eligibility_sub()}</p>
+		<h1 class="text-3xl font-semibold text-foreground">{m.eligibility_title()}</h1>
 	</div>
 
 	{#if !result}
@@ -64,7 +63,7 @@
 							class="rounded-lg border px-5 py-2 text-sm font-medium transition-colors
 								{answers[q.key] === true
 									? 'border-primary bg-primary text-primary-foreground'
-									: 'border-border bg-secondary text-foreground hover:border-primary hover:text-primary'}"
+									: 'border-border text-foreground hover:border-primary hover:text-primary'}"
 						>
 							{m.eligibility_yes_label()}
 						</button>
@@ -74,7 +73,7 @@
 							class="rounded-lg border px-5 py-2 text-sm font-medium transition-colors
 								{answers[q.key] === false
 									? 'border-primary bg-primary text-primary-foreground'
-									: 'border-border bg-secondary text-foreground hover:border-primary hover:text-primary'}"
+									: 'border-border text-foreground hover:border-primary hover:text-primary'}"
 						>
 							{m.eligibility_no_label()}
 						</button>
@@ -95,26 +94,31 @@
 		<p class="mt-6 text-center text-xs text-muted-foreground">{m.eligibility_disclaimer()}</p>
 
 	{:else if result.eligible}
-		<div class="rounded-xl border border-primary/30 bg-primary/5 p-10 text-center">
-			<div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-primary/10 text-2xl">✅</div>
-			<h2 class="mb-2 text-lg font-semibold text-foreground">{m.eligibility_yes()}</h2>
-			<p class="mb-6 text-sm text-muted-foreground">{m.eligibility_yes_desc()}</p>
+		<div class="rounded-2xl border border-border p-10 text-center">
+			<h2 class="mb-2 text-xl font-semibold text-foreground">{m.eligibility_yes()}</h2>
+			<p class="mb-7 text-sm text-muted-foreground">{m.eligibility_yes_desc()}</p>
 			<div class="flex flex-wrap justify-center gap-3">
 				<Button href="/locations">{m.footer_locations()}</Button>
-				<button type="button" onclick={reset} class="rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary hover:text-primary">
-					Yenidən yoxla
-				</button>
+				<button
+				type="button"
+				onclick={reset}
+				class="rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+			>
+				{m.eligibility_retry()}
+			</button>
 			</div>
 		</div>
 
 	{:else}
-		<div class="rounded-xl border border-border bg-card p-10 text-center">
-			<div class="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-secondary text-2xl">⚠️</div>
-			<h2 class="mb-2 text-lg font-semibold text-foreground">{m.eligibility_no()}</h2>
-			<p class="mb-2 text-sm text-muted-foreground">{m.eligibility_no_desc()}</p>
-			<p class="mb-6 text-sm font-medium text-primary">{result.reason}</p>
-			<button type="button" onclick={reset} class="rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground hover:border-primary hover:text-primary">
-				Yenidən yoxla
+		<div class="rounded-2xl border border-border p-10 text-center">
+			<h2 class="mb-2 text-xl font-semibold text-foreground">{m.eligibility_no()}</h2>
+			<p class="mb-7 text-sm text-muted-foreground">{result.reason}</p>
+			<button
+				type="button"
+				onclick={reset}
+				class="rounded-lg border border-border px-5 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
+			>
+				{m.eligibility_retry()}
 			</button>
 		</div>
 	{/if}
