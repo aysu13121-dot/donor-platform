@@ -22,11 +22,6 @@
 	let isActive = (path) => page.url.pathname === path;
 </script>
 
-<!-- OFFICIAL TOP BAR -->
-<div class="border-b border-border bg-secondary px-6 py-1.5 text-center text-[11px] font-medium text-muted-foreground">
-	🇦🇿 Donor.az — Azərbaycanın Qan Donorluğu Platforması
-</div>
-
 <nav class="sticky top-0 z-50 border-b border-border bg-background">
 	<div class="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
 		<BrandLogo class="lg:justify-self-start" />
@@ -48,24 +43,26 @@
 		</ul>
 
 		<div class="hidden items-center gap-3 lg:flex lg:justify-self-end">
-			<ThemeToggle />
-			<LanguageSwitch />
+			<div class="flex items-center gap-1">
+				<ThemeToggle />
+				<LanguageSwitch />
+			</div>
 			{#if isAuthenticated}
 				<Button href="/dashboard" size="sm">
 					<LayoutDashboard aria-hidden="true" />
 					{m.nav_dashboard()}
 				</Button>
 			{:else}
-				<a href="/signin" class="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-					{m.nav_login()}
-				</a>
-				<Button href="/signup" size="sm">{m.nav_register()}</Button>
+				<div class="flex items-center gap-2">
+					<Button href="/signin" variant="outline" size="sm">{m.nav_login()}</Button>
+					<Button href="/signup" size="sm">{m.nav_register()}</Button>
+				</div>
 			{/if}
 		</div>
 
 		<button
 			type="button"
-			class="flex size-9 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary lg:hidden"
+			class="flex size-9 items-center justify-center rounded-lg text-foreground transition-colors hover:text-primary lg:hidden"
 			onclick={() => (menuOpen = !menuOpen)}
 			aria-label="Toggle menu"
 		>
@@ -91,10 +88,8 @@
 						{m.nav_dashboard()}
 					</Button>
 				{:else}
-					<div class="flex items-center gap-4">
-						<a href="/signin" onclick={() => (menuOpen = false)} class="text-base font-medium text-foreground">
-							{m.nav_login()}
-						</a>
+					<div class="flex items-center gap-2">
+						<Button href="/signin" variant="outline" size="sm" onclick={() => (menuOpen = false)}>{m.nav_login()}</Button>
 						<Button href="/signup" size="sm" onclick={() => (menuOpen = false)}>{m.nav_register()}</Button>
 					</div>
 				{/if}

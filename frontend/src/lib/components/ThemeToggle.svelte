@@ -19,7 +19,7 @@
 	type="button"
 	onclick={toggle}
 	aria-label="Toggle theme"
-	class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+	class="flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-primary"
 >
 	{#if dark}
 		<Sun class="size-4" aria-hidden="true" />

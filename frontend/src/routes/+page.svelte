@@ -7,6 +7,7 @@
 	import Users from '@lucide/svelte/icons/users';
 	import { page } from '$app/state';
 	import * as m from '$lib/paraglide/messages.js';
+	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import StatCard from '$lib/components/dashboard/StatCard.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -42,9 +43,6 @@
 	<!-- HERO -->
 	<section class="flex items-center border-b border-border bg-background py-16 md:min-h-[calc(100svh-68px)] md:py-0">
 		<div class="mx-auto w-full max-w-2xl px-6 text-center">
-			<span class="mb-4 inline-block rounded-full border border-border bg-secondary px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-				Azərbaycan · Blood Donor Platform
-			</span>
 			<h1 class="mb-5 text-4xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
 				{m.hero_h1()} <span class="text-primary">{m.hero_h1em()}</span>
 			</h1>
@@ -83,22 +81,16 @@
 	<section class="border-b border-border bg-background py-20">
 		<div class="mx-auto max-w-6xl px-6">
 			<div class="mb-12 text-center">
-				<h2 class="mb-3 text-2xl font-semibold text-foreground md:text-3xl">{m.how_title()}</h2>
-				<p class="text-sm text-muted-foreground">{m.how_sub()}</p>
+				<h2 class="text-2xl font-semibold text-foreground md:text-3xl">{m.how_title()}</h2>
 			</div>
 			<div class="grid gap-6 md:grid-cols-3">
-				{#each HOW_STEPS as step, i}
-					<div class="relative rounded-xl border border-border bg-card p-8">
-						<div class="mb-4 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
+				{#each HOW_STEPS as step}
+					<div class="relative overflow-hidden rounded-xl border border-border bg-card p-8">
+						<span class="pointer-events-none absolute bottom-3 right-3 select-none text-lg font-bold text-primary">
 							{step.num()}
-						</div>
-						<h3 class="mb-2 text-base font-semibold text-foreground">{step.title()}</h3>
-						<p class="text-sm leading-relaxed text-muted-foreground">{step.desc()}</p>
-						{#if i < HOW_STEPS.length - 1}
-							<div class="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-border md:block">
-								<ArrowRight class="size-5" />
-							</div>
-						{/if}
+						</span>
+						<h3 class="relative z-10 mb-2 text-base font-semibold text-foreground">{step.title()}</h3>
+						<p class="relative z-10 text-sm leading-relaxed text-muted-foreground">{step.desc()}</p>
 					</div>
 				{/each}
 			</div>
@@ -175,9 +167,7 @@
 			<div class="grid grid-cols-2 gap-8 md:grid-cols-4">
 				<!-- Brand -->
 				<div class="col-span-2 md:col-span-1">
-					<div class="mb-3 text-lg font-bold text-foreground">
-						<span class="text-primary">Donor</span>.az
-					</div>
+					<BrandLogo class="mb-3" />
 					<p class="text-xs leading-relaxed text-muted-foreground">{m.footer_tagline()}</p>
 				</div>
 
@@ -214,7 +204,7 @@
 
 			<div class="mt-10 border-t border-border pt-6 text-center">
 				<p class="text-[11px] text-muted-foreground">{m.footer_legal()}</p>
-				<p class="mt-1 text-[11px] text-muted-foreground">{m.footer()}</p>
+				<p class="mt-1 text-[11px] text-muted-foreground">{m.footer({ year: new Date().getFullYear() })}</p>
 			</div>
 		</div>
 	</footer>
