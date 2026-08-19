@@ -1,1 +1,14 @@
 *.db
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editör
+.idea/
+*.swp
+
+# Env (kök səviyyəsində)
+.env
+.env.local
