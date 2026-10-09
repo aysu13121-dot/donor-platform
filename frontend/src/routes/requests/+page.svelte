@@ -13,17 +13,17 @@
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { Card } from '$lib/components/ui/card';
-	import { BLOOD_TYPES, CITIES } from '$lib/constants';
+	import { BLOOD_TYPES, CITIES } from '$lib/constants'; import MatchBadge from '$lib/components/MatchBadge.svelte';
 
 	let { data } = $props();
 
 	let isAuthenticated = $derived(Boolean(page.data.user));
 
 	const URGENCY_OPTIONS = [
-		{ value: '', label: m.requests_allUrgency() },
-		{ value: 'Urgent', label: m.requests_urgent() },
-		{ value: 'normal', label: m.requests_normal() },
-	];
+	{ value: '', label: m.requests_allUrgency() },
+	{ value: 'Urgent', label: m.requests_urgent() },
+	{ value: 'Normal', label: m.requests_normal() },
+];
 
 	function updateFilters(patch) {
 		const params = new SvelteURLSearchParams(page.url.searchParams);
@@ -105,7 +105,7 @@
 								</span>
 							{/if}
 						</div>
-						{#if req.note}
+						<MatchBadge count={req.match_count} city={req.city} />{#if req.note}
 							<p class="mb-3.5 border-l-2 border-border pl-2.5 text-sm text-muted-foreground">{req.note}</p>
 						{/if}
 						<ContactActions phone={req.contact_phone} callLabel={m.requests_call()} locked={!isAuthenticated} class="mt-auto" />

@@ -10,7 +10,7 @@
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import StatCard from '$lib/components/dashboard/StatCard.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
+	import Button from '$lib/components/ui/Button.svelte'; import UrgentBoard from '$lib/components/UrgentBoard.svelte';
 	import { Card } from '$lib/components/ui/card';
 	import { bloodCompatibility } from '$lib/constants';
 	import { cn } from '$lib/utils';
