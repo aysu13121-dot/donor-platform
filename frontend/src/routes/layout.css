@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import 'tailwindcss';
 
 :root {
-	--background: #fafafa;
+	--background: #fbfaf9;
 	--foreground: #18181b;
 
 	--card: #ffffff;
@@ -15,25 +15,26 @@
 	--primary-hover: #a8172f;
 	--primary-foreground: #ffffff;
 
-	--secondary: #f4f4f5;
+	--secondary: #f3f1ef;
 	--secondary-foreground: #3f3f46;
 
 	--muted: #f4f4f5;
 	--muted-foreground: #71717a;
 
-	--accent: #fdf2f3;
+	--accent: #fff0f2;
 	--accent-foreground: #c41e3a;
 
 	--destructive: #dc2626;
 	--destructive-foreground: #ffffff;
 
-	--border: #e4e4e7;
+	--border: #e5e0de;
 	--input: #e4e4e7;
 	--ring: #c41e3a;
 
-	--radius: 0.5rem;
+	--radius: 0.65rem;
 
-	--font-sans: 'Inter', system-ui, sans-serif;
+	--font-sans: 'DM Sans', system-ui, sans-serif;
+	--font-display: 'Space Grotesk', 'DM Sans', sans-serif;
 }
 
 @theme inline {
@@ -79,7 +80,11 @@
 		background: var(--color-background);
 		color: var(--color-foreground);
 		font-family: var(--font-sans);
+		background-image: radial-gradient(circle at 15% 0%, rgba(196, 30, 58, 0.045), transparent 28rem);
 	}
+
+	h1, h2, h3 { font-family: var(--font-display); }
+	a, button { -webkit-tap-highlight-color: transparent; }
 }
 
 /* ============================================================

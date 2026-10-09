@@ -28,8 +28,9 @@
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-	<div class="w-full max-w-[440px] rounded-lg border border-border bg-card p-10 sm:p-12">
+	<div class="w-full max-w-[440px] rounded-2xl border border-border bg-card p-8 shadow-[0_24px_70px_rgba(24,24,27,0.08)] sm:p-10">
 		<BrandLogo class="mb-8" />
+		<p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">Donor.az hesabı</p>
 		<h1 class="mb-8 text-2xl font-semibold text-foreground">{m.login_title()}</h1>
 
 		{#if error}

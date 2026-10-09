@@ -44,11 +44,14 @@ def create_app(config_class=Config):
     from app.api.donors import donors_bp
     from app.api.requests import requests_bp
     from app.api.stats import stats_bp
+    from app.utils.demo_account import ensure_demo_account
 
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(donors_bp, url_prefix='/api')
     app.register_blueprint(requests_bp, url_prefix='/api')
     app.register_blueprint(stats_bp, url_prefix='/api')
+
+    ensure_demo_account()
 
     @app.route('/api/health')
     def health():

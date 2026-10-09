@@ -22,8 +22,8 @@
 	let isActive = (path) => page.url.pathname === path;
 </script>
 
-<nav class="sticky top-0 z-50 border-b border-border bg-background">
-	<div class="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
+<nav class="sticky top-0 z-50 border-b border-border/80 bg-background/90 backdrop-blur-md">
+	<div class="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
 		<BrandLogo class="lg:justify-self-start" />
 
 		<ul class="hidden items-center gap-7 lg:flex lg:justify-self-center">

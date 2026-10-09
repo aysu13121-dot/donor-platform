@@ -42,6 +42,22 @@ flask db upgrade
 python run.py                # http://127.0.0.1:5000
 ```
 
+Demo login (create or refresh it after configuring `DATABASE_URL`):
+
+```text
+Email:    demo@donor.az
+Password: DonorDemo2026!
+```
+
+```bash
+python seed_demo.py
+```
+
+The seeder is idempotent. It can be run again after a database reset, and the
+values can be overridden with `DEMO_EMAIL` and `DEMO_PASSWORD` environment
+variables. The backend also refreshes this account on startup while
+`DEMO_ACCOUNT_ENABLED=True`, which is useful for the deployed demo.
+
 Test: `pytest -q`
 
 ### Frontend
