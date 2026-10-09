@@ -9,7 +9,7 @@ _DEV_FALLBACK_SECRET = secrets.token_hex(32)
 
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY') or _DEV_FALLBACK_SECRET
+    SECRET_KEY = os.getenv('SECRET_KEY') or 'placeholder-change-me'
     SECRET_KEY_IS_FALLBACK = not os.getenv('SECRET_KEY')
 
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
@@ -18,7 +18,8 @@ class Config:
     # Neon (və ya hər hansı Postgres) bağlantı sətri - SQLite artıq
     # dəstəklənmir. Yerli inkişafda bu maşında Docker olmadığı üçün
     # verilənlər bazası bulud (Neon) üzərindədir.
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    # Disposable one-day demo fallback when no hosted database is configured.
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL') or 'sqlite:///demo.db'
     SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True}
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

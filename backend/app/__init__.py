@@ -51,7 +51,10 @@ def create_app(config_class=Config):
     app.register_blueprint(requests_bp, url_prefix='/api')
     app.register_blueprint(stats_bp, url_prefix='/api')
 
-    ensure_demo_account()
+    with app.app_context():
+        if app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('sqlite:'):
+            db.create_all()
+        ensure_demo_account()
 
     @app.route('/api/health')
     def health():
