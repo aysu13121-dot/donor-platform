@@ -21,7 +21,7 @@
 
 	const URGENCY_OPTIONS = [
 		{ value: '', label: m.requests_allUrgency() },
-		{ value: 'urgent', label: m.requests_urgent() },
+		{ value: 'Urgent', label: m.requests_urgent() },
 		{ value: 'normal', label: m.requests_normal() },
 	];
 
@@ -84,8 +84,8 @@
 							<div class="flex size-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
 								{req.blood_type}
 							</div>
-							<Badge variant={req.urgency === 'urgent' ? 'destructive' : 'default'}>
-								{req.urgency === 'urgent' ? m.requests_urgent() : m.requests_normal()}
+							<Badge variant={req.urgency === 'Urgent' ? 'destructive' : 'default'}>
+								{req.urgency === 'Urgent' ? m.requests_urgent() : m.requests_normal()}
 							</Badge>
 						</div>
 						<h3 class="mb-2.5 text-base font-semibold text-foreground">{req.patient_name}</h3>
