@@ -4,4 +4,4 @@
 	let { class: className, ...rest } = $props();
 </script>
 
-<div class={cn('animate-pulse rounded-md bg-secondary', className)} {...rest}></div>
+<div class={cn('shimmer rounded-xl bg-secondary', className)} {...rest}></div>

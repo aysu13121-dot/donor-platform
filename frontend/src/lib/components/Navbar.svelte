@@ -22,18 +22,21 @@
 	let isActive = (path) => page.url.pathname === path;
 </script>
 
-<nav class="sticky top-0 z-50 border-b border-border bg-background">
-	<div class="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
+<nav class="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+	<div class="h-1 bg-primary"></div>
+	<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
 		<BrandLogo class="lg:justify-self-start" />
 
-		<ul class="hidden items-center gap-7 lg:flex lg:justify-self-center">
+		<ul class="hidden items-center gap-1 lg:flex lg:justify-self-center">
 			{#each NAV_LINKS as link (link.key)}
 				<li>
 					<a
 						href={link.href}
 						class={cn(
-							'text-sm font-medium text-muted-foreground transition-colors hover:text-primary',
-							isActive(link.href) && 'text-primary'
+							'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+							isActive(link.href)
+								? 'bg-accent text-accent-foreground'
+								: 'text-muted-foreground hover:bg-secondary hover:text-foreground'
 						)}
 					>
 						{link.label()}
@@ -75,13 +78,17 @@
 	</div>
 
 	{#if menuOpen}
-		<div class="absolute inset-x-0 top-full z-40 flex max-h-[calc(100vh-68px)] flex-col gap-4 overflow-y-auto border-t border-border bg-background px-6 py-5 shadow-lg lg:hidden">
+		<div class="absolute inset-x-0 top-full z-40 flex max-h-[calc(100vh-68px)] flex-col gap-2 overflow-y-auto border-t border-border bg-background px-6 py-5 shadow-lg lg:hidden">
 			{#each NAV_LINKS as link (link.key)}
-				<a href={link.href} onclick={() => (menuOpen = false)} class="text-base font-medium text-foreground">
+				<a
+					href={link.href}
+					onclick={() => (menuOpen = false)}
+					class="rounded-xl px-3 py-2 text-base font-semibold text-foreground hover:bg-secondary"
+				>
 					{link.label()}
 				</a>
 			{/each}
-			<div class="flex items-center justify-between">
+			<div class="mt-3 flex items-center justify-between">
 				{#if isAuthenticated}
 					<Button href="/dashboard" size="sm" class="w-fit" onclick={() => (menuOpen = false)}>
 						<LayoutDashboard aria-hidden="true" />
