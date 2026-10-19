@@ -1,115 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-@import 'tailwindcss';
-
-:root {
-	--background: #fbfaf9;
-	--foreground: #18181b;
-
-	--card: #ffffff;
-	--card-foreground: #18181b;
-
-	--popover: #ffffff;
-	--popover-foreground: #18181b;
-
-	--primary: #c41e3a;
-	--primary-hover: #a8172f;
-	--primary-foreground: #ffffff;
-
-	--secondary: #f3f1ef;
-	--secondary-foreground: #3f3f46;
-
-	--muted: #f4f4f5;
-	--muted-foreground: #71717a;
-
-	--accent: #fff0f2;
-	--accent-foreground: #c41e3a;
-
-	--destructive: #dc2626;
-	--destructive-foreground: #ffffff;
-
-	--border: #e5e0de;
-	--input: #e4e4e7;
-	--ring: #c41e3a;
-
-	--radius: 0.65rem;
-
-	--font-sans: 'DM Sans', system-ui, sans-serif;
-	--font-display: 'Space Grotesk', 'DM Sans', sans-serif;
+/* ===== FINAL REDESIGN ===== */
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0 0 auto 0;
+	height: 3px;
+	background: var(--primary);
+	z-index: 60;
 }
 
-@theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-
-	--color-primary: var(--primary);
-	--color-primary-hover: var(--primary-hover);
-	--color-primary-foreground: var(--primary-foreground);
-
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-
-	--color-destructive: var(--destructive);
-	--color-destructive-foreground: var(--destructive-foreground);
-
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
-
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-
-	--font-sans: var(--font-sans);
+.hero-glow {
+	position: relative;
+	overflow: hidden;
+	background-image:
+		radial-gradient(60rem 28rem at 15% -10%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%),
+		radial-gradient(50rem 26rem at 90% 110%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 70%);
 }
 
-@layer base {
-	body {
-		background: var(--color-background);
-		color: var(--color-foreground);
-		font-family: var(--font-sans);
-		background-image: radial-gradient(circle at 15% 0%, rgba(196, 30, 58, 0.045), transparent 28rem);
-	}
-
-	h1, h2, h3 { font-family: var(--font-display); }
-	a, button { -webkit-tap-highlight-color: transparent; }
+.hero-glow::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(color-mix(in srgb, var(--primary) 22%, transparent) 1px, transparent 1.5px);
+	background-size: 24px 24px;
+	-webkit-mask-image: radial-gradient(ellipse at center, #000 0%, transparent 70%);
+	mask-image: radial-gradient(ellipse at center, #000 0%, transparent 70%);
+	pointer-events: none;
 }
 
-/* ============================================================
-   DARK MODE
-   ============================================================ */
-
-.dark {
-	--background: #09090b;
-	--foreground: #fafafa;
-
-	--card: #18181b;
-	--card-foreground: #fafafa;
-
-	--popover: #18181b;
-	--popover-foreground: #fafafa;
-
-	--secondary: #27272a;
-	--secondary-foreground: #fafafa;
-
-	--muted: #27272a;
-	--muted-foreground: #a1a1aa;
-
-	--accent: #3f1520;
-	--accent-foreground: #fca5a5;
-
-	--border: #27272a;
-	--input: #27272a;
+.hero-glow::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 8%;
+	height: 120px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath d='M0 60 H440 L470 60 L490 18 L520 102 L550 38 L575 60 H1200' fill='none' stroke='%23c41e3a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 1200px 120px repeat-x;
+	opacity: 0.35;
+	pointer-events: none;
 }

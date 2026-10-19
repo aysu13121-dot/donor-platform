@@ -41,15 +41,12 @@
 	<Navbar />
 
 	<!-- HERO -->
-	<section class="relative flex items-center overflow-hidden border-b border-border bg-background py-20 md:min-h-[calc(100svh-72px)] md:py-0">
-		<div class="pointer-events-none absolute -right-24 top-12 size-72 rounded-full border-[36px] border-primary/10"></div>
-		<div class="pointer-events-none absolute -left-32 bottom-0 size-80 rounded-full border-[48px] border-primary/5"></div>
-		<div class="relative mx-auto w-full max-w-3xl px-6 text-center">
-			<p class="mb-5 text-xs font-bold uppercase tracking-[0.22em] text-primary">Donor.az / Azərbaycan</p>
-			<h1 class="mb-6 text-4xl font-semibold leading-[1.08] tracking-tight text-foreground md:text-6xl">
+	<section class="hero-glow flex items-center border-b border-border bg-background py-16 md:min-h-[calc(100svh-68px)] md:py-0">
+		<div class="relative z-10 mx-auto w-full max-w-2xl px-6 text-center">
+			<h1 class="mb-5 text-4xl font-bold leading-tight tracking-tight text-foreground md:text-6xl">
 				{m.hero_h1()} <span class="text-primary">{m.hero_h1em()}</span>
 			</h1>
-			<p class="mx-auto mb-10 max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">{m.hero_sub()}</p>
+			<p class="mx-auto mb-9 max-w-xl text-base leading-relaxed text-muted-foreground">{m.hero_sub()}</p>
 			<div class="flex flex-wrap items-center justify-center gap-3">
 				{#if !isAuthenticated}
 					<Button href="/signup" size="lg">{m.hero_cta1()}</Button>
@@ -87,7 +84,7 @@
 				<h2 class="text-2xl font-semibold text-foreground md:text-3xl">{m.how_title()}</h2>
 			</div>
 			<div class="grid gap-6 md:grid-cols-3">
-				{#each HOW_STEPS as step (step.num())}
+				{#each HOW_STEPS as step}
 					<div class="relative overflow-hidden rounded-xl border border-border bg-card p-8">
 						<span class="pointer-events-none absolute bottom-3 right-3 select-none text-lg font-bold text-primary">
 							{step.num()}

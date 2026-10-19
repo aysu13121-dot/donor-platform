@@ -13,17 +13,17 @@
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { Card } from '$lib/components/ui/card';
-	import { BLOOD_TYPES, CITIES } from '$lib/constants'; import MatchBadge from '$lib/components/MatchBadge.svelte';
+	import { BLOOD_TYPES, CITIES } from '$lib/constants';
 
 	let { data } = $props();
 
 	let isAuthenticated = $derived(Boolean(page.data.user));
 
 	const URGENCY_OPTIONS = [
-	{ value: '', label: m.requests_allUrgency() },
-	{ value: 'Urgent', label: m.requests_urgent() },
-	{ value: 'Normal', label: m.requests_normal() },
-];
+		{ value: '', label: m.requests_allUrgency() },
+		{ value: 'Urgent', label: m.requests_urgent() },
+		{ value: 'Normal', label: m.requests_normal() },
+	];
 
 	function updateFilters(patch) {
 		const params = new SvelteURLSearchParams(page.url.searchParams);
@@ -79,7 +79,7 @@
 		{:else}
 			<div class="mb-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{#each data.requests as req (req.id)}
-					<Card class="flex flex-col p-5 transition-shadow hover:shadow-sm">
+					<Card class="flex flex-col p-5 transition-all hover:-translate-y-0.5 hover:shadow-md {req.urgency === 'Urgent' ? 'border-l-4 border-l-primary' : ''}">
 						<div class="mb-4 flex items-center justify-between">
 							<div class="flex size-11 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
 								{req.blood_type}
@@ -105,7 +105,7 @@
 								</span>
 							{/if}
 						</div>
-						<MatchBadge count={req.match_count} city={req.city} />{#if req.note}
+						{#if req.note}
 							<p class="mb-3.5 border-l-2 border-border pl-2.5 text-sm text-muted-foreground">{req.note}</p>
 						{/if}
 						<ContactActions phone={req.contact_phone} callLabel={m.requests_call()} locked={!isAuthenticated} class="mt-auto" />
