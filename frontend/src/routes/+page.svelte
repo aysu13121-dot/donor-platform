@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 	import Activity from '@lucide/svelte/icons/activity';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import CheckCircle2 from '@lucide/svelte/icons/check-circle-2';
@@ -6,12 +7,13 @@
 	import Search from '@lucide/svelte/icons/search';
 	import Users from '@lucide/svelte/icons/users';
 	import { page } from '$app/state';
+	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages.js';
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
+	import CountUp from '$lib/components/CountUp.svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
-	import StatCard from '$lib/components/dashboard/StatCard.svelte';
-	import Button from '$lib/components/ui/Button.svelte'; import UrgentBoard from '$lib/components/UrgentBoard.svelte';
-	import { Card } from '$lib/components/ui/card';
+	import UrgentBoard from '$lib/components/UrgentBoard.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 	import { bloodCompatibility } from '$lib/constants';
 	import { cn } from '$lib/utils';
 
@@ -19,6 +21,42 @@
 
 	let isAuthenticated = $derived(Boolean(page.data.user));
 	let selectedType = $state('A+');
+	let top = $derived(data.urgent?.[0] ?? null);
+
+	const T = {
+		az: {
+			eyebrow: 'AZƏRBAYCAN · QAN DONORU PLATFORMASI',
+			see: 'Sorğuya bax',
+			all: 'Bütün sorğular',
+			min: (n) => `${n} dəq əvvəl`,
+			hour: (n) => `${n} saat əvvəl`,
+			day: (n) => `${n} gün əvvəl`
+		},
+		en: {
+			eyebrow: 'AZERBAIJAN · BLOOD DONOR PLATFORM',
+			see: 'See request',
+			all: 'All requests',
+			min: (n) => `${n} min ago`,
+			hour: (n) => `${n}h ago`,
+			day: (n) => `${n}d ago`
+		}
+	};
+	const t = T[getLocale()] ?? T.az;
+
+	// Zaman yalnız brauzerdə hesablanır ki, server və brauzer mətni üst-üstə düşsün.
+	let now = $state(null);
+	onMount(() => {
+		now = Date.now();
+	});
+
+	function ago(iso) {
+		if (!now || !iso) return '';
+		const min = Math.max(1, Math.floor((now - new Date(iso).getTime()) / 60000));
+		if (min < 60) return t.min(min);
+		const hours = Math.floor(min / 60);
+		if (hours < 24) return t.hour(hours);
+		return t.day(Math.floor(hours / 24));
+	}
 
 	const STATS_DISPLAY = [
 		{ key: 'total_donors', icon: Users, label: m.stats_totalDonors },
@@ -30,7 +68,7 @@
 	const HOW_STEPS = [
 		{ num: m.how_step1_num, title: m.how_step1_title, desc: m.how_step1_desc },
 		{ num: m.how_step2_num, title: m.how_step2_title, desc: m.how_step2_desc },
-		{ num: m.how_step3_num, title: m.how_step3_title, desc: m.how_step3_desc },
+		{ num: m.how_step3_num, title: m.how_step3_title, desc: m.how_step3_desc }
 	];
 
 	const bloodTypes = bloodCompatibility();
@@ -41,31 +79,99 @@
 	<Navbar />
 
 	<!-- HERO -->
-	<section class="flex items-center border-b border-border bg-background py-16 md:min-h-[calc(100svh-68px)] md:py-0">
-		<div class="mx-auto w-full max-w-2xl px-6 text-center">
-			<h1 class="mb-5 text-4xl font-semibold leading-tight tracking-tight text-foreground md:text-5xl">
-				{m.hero_h1()} <span class="text-primary">{m.hero_h1em()}</span>
-			</h1>
-			<p class="mx-auto mb-9 max-w-xl text-base leading-relaxed text-muted-foreground">{m.hero_sub()}</p>
-			<div class="flex flex-wrap items-center justify-center gap-3">
-				{#if !isAuthenticated}
-					<Button href="/signup" size="lg">{m.hero_cta1()}</Button>
+	<section class="hero-red relative overflow-hidden text-white">
+		<div
+			aria-hidden="true"
+			class="pointer-events-none absolute -right-6 -top-10 select-none text-[22rem] font-extrabold leading-none tracking-tighter text-white/[0.07] max-md:hidden"
+		>
+			A+
+		</div>
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 1280 80"
+			preserveAspectRatio="none"
+			class="pointer-events-none absolute inset-x-0 bottom-8 h-20 w-full"
+		>
+			<path
+				class="heartbeat-path"
+				d="M0 40 H520 L550 40 L575 8 L610 72 L640 24 L665 40 H1280"
+				fill="none"
+				stroke="rgba(255,255,255,0.45)"
+				stroke-width="2.5"
+				stroke-linejoin="round"
+			/>
+		</svg>
+
+		<div class="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-16 md:min-h-[calc(100svh-68px)] md:grid-cols-[1.1fr_1fr] md:py-20">
+			<div>
+				<p class="rise mb-5 text-xs font-bold tracking-[0.14em] text-white/85">{t.eyebrow}</p>
+				<h1 class="rise-2 mb-6 text-5xl font-extrabold leading-[1.02] md:text-7xl">
+					{m.hero_h1()} <span class="text-white/75">{m.hero_h1em()}</span>
+				</h1>
+				<p class="rise-3 mb-9 max-w-md text-lg leading-relaxed text-white/90">{m.hero_sub()}</p>
+				<div class="rise-4 flex flex-wrap gap-3">
+					{#if !isAuthenticated}
+						<Button href="/signup" variant="light" size="lg">{m.hero_cta1()}</Button>
+					{/if}
+					<Button href="/#blood-types" variant="outlineLight" size="lg">
+						<Search aria-hidden="true" />
+						{m.hero_cta2()}
+					</Button>
+				</div>
+			</div>
+
+			<div class="rise-3 w-full max-w-md justify-self-center rounded-3xl bg-card p-6 text-card-foreground shadow-pop md:justify-self-end">
+				{#if top}
+					<div class="flex items-center justify-between">
+						<span class="flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-extrabold uppercase tracking-wider text-accent-foreground">
+							<span class="relative flex size-2">
+								<span class="ping-ring absolute inline-flex size-full rounded-full bg-primary opacity-60"></span>
+								<span class="relative inline-flex size-2 rounded-full bg-primary"></span>
+							</span>
+							{m.requests_urgent()}
+						</span>
+						<span class="text-xs font-medium text-muted-foreground">{ago(top.created_at)}</span>
+					</div>
+					<div class="my-5 flex items-center gap-4">
+						<div class="relative h-20 w-16 shrink-0">
+							<svg viewBox="0 0 64 80" class="beat h-20 w-16 text-primary" aria-hidden="true">
+								<path d="M32 4C32 4 6 34 6 52a26 26 0 0 0 52 0C58 34 32 4 32 4Z" fill="currentColor" />
+							</svg>
+							<span class="absolute inset-x-0 top-9 text-center text-xl font-extrabold text-white">{top.blood_type}</span>
+						</div>
+						<div class="min-w-0">
+							<p class="truncate text-lg font-extrabold">{top.hospital}</p>
+							<p class="text-sm text-muted-foreground">{top.city} · {top.units_needed} {m.requests_units()}</p>
+						</div>
+					</div>
+					<Button href="/requests" class="w-full">{t.see}</Button>
+				{:else}
+					<p class="text-sm font-semibold text-muted-foreground">{m.requests_empty()}</p>
+					<Button href="/requests" variant="outline" class="mt-4 w-full">{t.all}</Button>
 				{/if}
-				<Button href="/#blood-types" variant="outline" size="lg">
-					<Search aria-hidden="true" />
-					{m.hero_cta2()}
-				</Button>
 			</div>
 		</div>
 	</section>
 
+	<!-- URGENT BOARD (the rest of the urgent requests) -->
+	<UrgentBoard requests={data.urgent?.slice(1) ?? []} />
+
 	<!-- STATS -->
 	{#if data.stats}
-		<section class="border-b border-border bg-secondary/40 py-14">
+		<section class="border-b border-border bg-secondary/50 py-14">
 			<div class="mx-auto max-w-6xl px-6">
 				<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 					{#each STATS_DISPLAY as stat (stat.key)}
-						<StatCard icon={stat.icon} label={stat.label()} value={String(data.stats[stat.key])} />
+						{@const Icon = stat.icon}
+						<div class="rounded-2xl border border-border bg-card p-6 shadow-card">
+							<div class="mb-4 flex size-10 items-center justify-center rounded-full bg-accent text-accent-foreground">
+								<Icon class="size-5" aria-hidden="true" />
+							</div>
+							<div class="text-4xl font-extrabold tracking-tight text-foreground">
+								<CountUp value={data.stats[stat.key]} />
+							</div>
+							<div class="mt-1 text-sm font-semibold text-muted-foreground">{stat.label()}</div>
+						</div>
 					{/each}
 				</div>
 				{#if typeof data.stats.total_cities === 'number'}
@@ -81,16 +187,16 @@
 	<section class="border-b border-border bg-background py-20">
 		<div class="mx-auto max-w-6xl px-6">
 			<div class="mb-12 text-center">
-				<h2 class="text-2xl font-semibold text-foreground md:text-3xl">{m.how_title()}</h2>
+				<h2 class="text-3xl font-extrabold text-foreground md:text-4xl">{m.how_title()}</h2>
 			</div>
-			<div class="grid gap-6 md:grid-cols-3">
+			<div class="grid gap-5 md:grid-cols-3">
 				{#each HOW_STEPS as step}
-					<div class="relative overflow-hidden rounded-xl border border-border bg-card p-8">
-						<span class="pointer-events-none absolute bottom-3 right-3 select-none text-lg font-bold text-primary">
+					<div class="rounded-2xl border border-border bg-card p-8 shadow-card">
+						<div class="mb-5 flex size-11 items-center justify-center rounded-full bg-primary text-sm font-extrabold text-primary-foreground">
 							{step.num()}
-						</span>
-						<h3 class="relative z-10 mb-2 text-base font-semibold text-foreground">{step.title()}</h3>
-						<p class="relative z-10 text-sm leading-relaxed text-muted-foreground">{step.desc()}</p>
+						</div>
+						<h3 class="mb-2 text-lg font-extrabold text-foreground">{step.title()}</h3>
+						<p class="text-sm leading-relaxed text-muted-foreground">{step.desc()}</p>
 					</div>
 				{/each}
 			</div>
@@ -98,21 +204,22 @@
 	</section>
 
 	<!-- BLOOD TYPE SELECTOR -->
-	<section class="bg-secondary/40 py-20" id="blood-types">
-		<div class="mx-auto max-w-2xl px-6 text-center">
-			<h2 class="mb-9 text-2xl font-semibold text-foreground md:text-3xl">{m.blood_title()}</h2>
+	<section class="bg-secondary/50 py-20" id="blood-types">
+		<div class="mx-auto max-w-4xl px-6 text-center">
+			<h2 class="mb-9 text-3xl font-extrabold text-foreground md:text-4xl">{m.blood_title()}</h2>
 
-			<p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{m.blood_selectPrompt()}</p>
+			<p class="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{m.blood_selectPrompt()}</p>
 			<div class="flex flex-wrap justify-center gap-2">
 				{#each bloodTypes as bt (bt.type)}
 					<button
 						type="button"
+						aria-pressed={selectedType === bt.type}
 						onclick={() => (selectedType = bt.type)}
 						class={cn(
-							'flex size-10 items-center justify-center rounded-md text-sm font-semibold transition-colors',
+							'flex h-11 min-w-12 items-center justify-center rounded-full px-4 text-sm font-bold transition-all',
 							selectedType === bt.type
-								? 'bg-primary text-primary-foreground'
-								: 'border border-border bg-card text-foreground hover:border-primary hover:text-primary'
+								? 'scale-105 bg-primary text-primary-foreground shadow-card'
+								: 'border-2 border-border bg-card text-foreground hover:border-primary hover:text-primary'
 						)}
 					>
 						{bt.type}
@@ -120,23 +227,29 @@
 				{/each}
 			</div>
 
-			<div class="mt-10 rounded-lg border border-border bg-card p-8">
-				<div class="grid grid-cols-1 gap-8 text-center sm:grid-cols-2">
-					<div>
-						<p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{m.blood_gives()}</p>
-						<div class="flex flex-wrap justify-center gap-2">
-							{#each selected.gives as g (g)}
-								<span class="rounded-md border border-border bg-background px-3 py-1.5 text-base font-semibold text-foreground">{g}</span>
-							{/each}
-						</div>
+			<div class="mt-10 grid items-center gap-8 rounded-3xl border border-border bg-card p-8 shadow-card md:grid-cols-[1fr_auto_1fr]">
+				<div class="md:text-right">
+					<p class="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{m.blood_receives()}</p>
+					<div class="flex flex-wrap justify-center gap-2 md:justify-end">
+						{#each selected.receives as r (r)}
+							<span class="rounded-full border border-border bg-background px-3.5 py-1.5 text-base font-bold text-foreground">{r}</span>
+						{/each}
 					</div>
-					<div>
-						<p class="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{m.blood_receives()}</p>
-						<div class="flex flex-wrap justify-center gap-2">
-							{#each selected.receives as r (r)}
-								<span class="rounded-md border border-border bg-background px-3 py-1.5 text-base font-semibold text-foreground">{r}</span>
-							{/each}
-						</div>
+				</div>
+
+				<div class="relative mx-auto h-28 w-24">
+					<svg viewBox="0 0 64 80" class="beat h-28 w-24 text-primary" aria-hidden="true">
+						<path d="M32 4C32 4 6 34 6 52a26 26 0 0 0 52 0C58 34 32 4 32 4Z" fill="currentColor" />
+					</svg>
+					<span class="absolute inset-x-0 top-12 text-center text-3xl font-extrabold text-white">{selected.type}</span>
+				</div>
+
+				<div class="md:text-left">
+					<p class="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{m.blood_gives()}</p>
+					<div class="flex flex-wrap justify-center gap-2 md:justify-start">
+						{#each selected.gives as g (g)}
+							<span class="rounded-full border border-border bg-background px-3.5 py-1.5 text-base font-bold text-foreground">{g}</span>
+						{/each}
 					</div>
 				</div>
 			</div>
@@ -145,18 +258,16 @@
 
 	<!-- CTA BANNER -->
 	{#if !isAuthenticated}
-		<section class="border-t border-border bg-background py-16">
-			<div class="mx-auto max-w-6xl px-6">
-				<Card class="flex flex-col items-center gap-5 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
-					<div>
-						<h2 class="mb-1.5 text-xl font-semibold text-foreground">{m.cta_title()}</h2>
-						<p class="text-sm text-muted-foreground">{m.cta_sub()}</p>
-					</div>
-					<Button href="/signup" size="lg" class="shrink-0">
-						{m.cta_btn()}
-						<ArrowRight aria-hidden="true" />
-					</Button>
-				</Card>
+		<section class="hero-red py-16 text-white">
+			<div class="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 text-center sm:flex-row sm:justify-between sm:text-left">
+				<div>
+					<h2 class="mb-1.5 text-2xl font-extrabold">{m.cta_title()}</h2>
+					<p class="text-sm text-white/85">{m.cta_sub()}</p>
+				</div>
+				<Button href="/signup" variant="light" size="lg" class="shrink-0">
+					{m.cta_btn()}
+					<ArrowRight aria-hidden="true" />
+				</Button>
 			</div>
 		</section>
 	{/if}
