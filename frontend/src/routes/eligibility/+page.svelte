@@ -53,7 +53,7 @@
 
 	{#if !result}
 		<div class="space-y-3">
-			{#each QUESTIONS as q}
+			{#each QUESTIONS as q (q.key)}
 				<div class="rounded-xl border border-border bg-card px-6 py-5">
 					<p class="mb-4 text-sm font-medium text-foreground">{q.label()}</p>
 					<div class="flex gap-3">

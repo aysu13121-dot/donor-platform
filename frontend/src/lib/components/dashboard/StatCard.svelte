@@ -18,15 +18,15 @@
 	<Card class="flex items-center gap-4 p-5">
 		<span
 			class={cn(
-				'flex size-11 shrink-0 items-center justify-center rounded-md',
-				tone === 'primary' ? 'bg-accent text-primary' : 'bg-secondary text-foreground'
+				'flex size-11 shrink-0 items-center justify-center rounded-full',
+				tone === 'primary' ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'
 			)}
 		>
 			<Icon class="size-5" aria-hidden="true" />
 		</span>
 		<div class="min-w-0">
-			<p class="text-2xl font-bold text-foreground">{value}</p>
-			<p class="truncate text-xs text-muted-foreground">{label}</p>
+			<p class="text-2xl font-extrabold text-foreground">{value}</p>
+			<p class="truncate text-xs font-semibold text-muted-foreground">{label}</p>
 		</div>
 	</Card>
 {/if}

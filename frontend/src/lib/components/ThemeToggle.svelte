@@ -1,10 +1,12 @@
 <script>
 	import Moon from '@lucide/svelte/icons/moon';
 	import Sun from '@lucide/svelte/icons/sun';
+	import { onMount } from 'svelte';
 
 	let dark = $state(false);
 
-	$effect(() => {
+	// app.html temanı səhifə yüklənməmiş qoyur; burada yalnız düymənin ikonunu uyğunlaşdırırıq.
+	onMount(() => {
 		dark = document.documentElement.classList.contains('dark');
 	});
 

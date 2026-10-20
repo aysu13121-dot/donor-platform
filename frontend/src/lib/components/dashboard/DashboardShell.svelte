@@ -23,9 +23,9 @@
 		{ href: '/about', key: 'about', icon: Info, label: m.nav_about }
 	];
 
-	const NAV_ITEM_BASE = 'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] transition-colors';
-	const NAV_ITEM_ACTIVE = 'bg-accent font-semibold text-primary';
-	const NAV_ITEM_INACTIVE = 'font-medium text-muted-foreground hover:bg-secondary hover:text-foreground';
+	const NAV_ITEM_BASE = 'flex items-center gap-2.5 rounded-full px-3.5 py-2 text-sm transition-colors';
+	const NAV_ITEM_ACTIVE = 'bg-accent font-bold text-accent-foreground';
+	const NAV_ITEM_INACTIVE = 'font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground';
 	const NAV_SECTION_LABEL = 'px-2.5 pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground/70';
 
 	let { children } = $props();
@@ -130,14 +130,17 @@
 	{/if}
 
 	<div class="flex min-w-0 flex-1 flex-col">
-		<header class="flex h-14 shrink-0 items-center border-b border-border bg-card px-4 lg:hidden">
+		<header class="flex h-14 shrink-0 items-center justify-between border-b border-border bg-card px-4 lg:hidden">
 			<button
 				type="button"
 				onclick={() => (open = true)}
+				aria-label="Menu"
 				class="flex size-9 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary"
 			>
 				<Menu class="size-5" aria-hidden="true" />
 			</button>
+			<BrandLogo />
+			<span class="size-9"></span>
 		</header>
 
 		<main class="flex-1 px-4 py-8 lg:px-8">{@render children?.()}</main>

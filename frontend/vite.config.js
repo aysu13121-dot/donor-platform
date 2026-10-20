@@ -17,7 +17,8 @@ const LUCIDE_ICONS = [
 	'check-circle-2', 'chevron-down', 'chevron-left', 'chevron-right', 'clipboard-list',
 	'droplet', 'globe', 'home', 'info', 'layout-dashboard', 'list-checks', 'log-out',
 	'map-pin', 'menu', 'message-circle', 'phone', 'plus', 'rotate-ccw', 'save', 'search',
-	'send', 'sticky-note', 'trash-2', 'triangle-alert', 'users', 'x', 'x-circle'
+	'send', 'sticky-note', 'trash-2', 'triangle-alert', 'users', 'x', 'x-circle',
+	'search-x', 'lock', 'moon', 'sun', 'printer', 'share-2', 'download'
 ].map((name) => `@lucide/svelte/icons/${name}`);
 
 export default defineConfig({

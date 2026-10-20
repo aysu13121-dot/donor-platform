@@ -183,3 +183,11 @@
 	}
 	.heartbeat-path { stroke-dashoffset: 0; }
 }
+
+/* ===== Dark mode: oxunaqlı qırmızı mətn =====
+   #c41e3a qaranlıq fonda ~3:1 kontrast verir (mətn üçün az). Yalnız mətn
+   açılır; düymə fonları, ikonlar və damcı şəkilləri (svg) olduğu kimi qalır. */
+.dark .text-primary:not(svg),
+.dark .hover\:text-primary:not(svg):hover {
+	color: #f0566f;
+}

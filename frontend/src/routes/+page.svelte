@@ -11,6 +11,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import CountUp from '$lib/components/CountUp.svelte';
+	import DonorMap from '$lib/components/DonorMap.svelte';
 	import Navbar from '$lib/components/Navbar.svelte';
 	import UrgentBoard from '$lib/components/UrgentBoard.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
@@ -31,7 +32,11 @@
 			all: 'Bütün sorğular',
 			min: (n) => `${n} dəq əvvəl`,
 			hour: (n) => `${n} saat əvvəl`,
-			day: (n) => `${n} gün əvvəl`
+			day: (n) => `${n} gün əvvəl`,
+			mapTitle: 'Donor xəritəsi',
+			mapSub: 'Hər şəhərdə hazır donorlar. Qırmızı nəbz: təcili sorğu var. Şəhərə bas, donorları gör.',
+			donors: 'hazır donor',
+			urgent: 'təcili sorğu'
 		},
 		en: {
 			eyebrow: 'AZERBAIJAN · BLOOD DONOR PLATFORM',
@@ -40,7 +45,11 @@
 			all: 'All requests',
 			min: (n) => `${n} min ago`,
 			hour: (n) => `${n}h ago`,
-			day: (n) => `${n}d ago`
+			day: (n) => `${n}d ago`,
+			mapTitle: 'Donor map',
+			mapSub: 'Available donors in each city. Red pulse: an urgent request. Tap a city to see its donors.',
+			donors: 'available donors',
+			urgent: 'urgent requests'
 		}
 	};
 	const t = T[getLocale()] ?? T.az;
@@ -186,6 +195,42 @@
 		</section>
 	{/if}
 
+	<!-- DONOR MAP -->
+	{#if data.cityMap}
+		<section class="border-b border-border bg-background py-20">
+			<div class="mx-auto max-w-6xl px-6">
+				<div class="mb-10 text-center">
+					<h2 class="text-3xl font-extrabold text-foreground md:text-4xl">{t.mapTitle}</h2>
+					<p class="mx-auto mt-3 max-w-xl text-muted-foreground">{t.mapSub}</p>
+				</div>
+				<div class="grid gap-6 lg:grid-cols-[1fr_17rem]">
+					<DonorMap cities={data.cityMap} donorsLabel={t.donors} urgentLabel={t.urgent} />
+					<ul class="grid grid-cols-2 gap-2 lg:grid-cols-1">
+						{#each [...data.cityMap].sort((a, b) => b.donors - a.donors) as c (c.city)}
+							<li>
+								<a
+									href="/donors?city={encodeURIComponent(c.city)}"
+									class="flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground transition-colors hover:border-primary"
+								>
+									<span class="flex items-center gap-2">
+										{#if c.urgent > 0}
+											<span class="relative flex size-2">
+												<span class="ping-ring absolute inline-flex size-full rounded-full bg-primary opacity-60"></span>
+												<span class="relative inline-flex size-2 rounded-full bg-primary"></span>
+											</span>
+										{/if}
+										{c.city}
+									</span>
+									<span class="rounded-full bg-accent px-2 py-0.5 text-xs font-extrabold text-accent-foreground">{c.donors}</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</div>
+		</section>
+	{/if}
+
 	<!-- HOW IT WORKS -->
 	<section class="border-b border-border bg-background py-20">
 		<div class="mx-auto max-w-6xl px-6">
@@ -193,7 +238,7 @@
 				<h2 class="text-3xl font-extrabold text-foreground md:text-4xl">{m.how_title()}</h2>
 			</div>
 			<div class="grid gap-5 md:grid-cols-3">
-				{#each HOW_STEPS as step}
+				{#each HOW_STEPS as step (step.num())}
 					<div class="rounded-2xl border border-border bg-card p-8 shadow-card">
 						<div class="mb-5 flex size-11 items-center justify-center rounded-full bg-primary text-sm font-extrabold text-primary-foreground">
 							{step.num()}

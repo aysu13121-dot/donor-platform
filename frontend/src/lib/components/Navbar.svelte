@@ -3,6 +3,7 @@
 	import Menu from '@lucide/svelte/icons/menu';
 	import X from '@lucide/svelte/icons/x';
 	import { page } from '$app/state';
+	import { getLocale } from '$lib/paraglide/runtime';
 	import * as m from '$lib/paraglide/messages.js';
 	import BrandLogo from '$lib/components/BrandLogo.svelte';
 	import LanguageSwitch from '$lib/components/LanguageSwitch.svelte';
@@ -13,6 +14,7 @@
 	const NAV_LINKS = [
 		{ href: '/', key: 'home', label: m.nav_home },
 		{ href: '/donors', key: 'donors', label: m.nav_donors },
+		{ href: '/find', key: 'find', label: () => (getLocale() === 'en' ? 'Find a donor' : 'Donor tap') },
 		{ href: '/requests', key: 'requests', label: m.nav_requests },
 		{ href: '/about', key: 'about', label: m.nav_about },
 	];

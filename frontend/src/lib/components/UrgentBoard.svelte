@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { getLocale } from '$lib/paraglide/runtime';
+	import DropBadge from '$lib/components/DropBadge.svelte';
 
 	let { requests = [] } = $props();
 
@@ -63,13 +64,11 @@
 				{#each requests as req (req.id)}
 					<a
 						href="/requests"
-						class="flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-sm"
+						class="flex items-center gap-4 rounded-2xl border border-border border-l-4 border-l-primary bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-md"
 					>
-						<div class="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-bold text-primary-foreground">
-							{req.blood_type}
-						</div>
+						<DropBadge type={req.blood_type} size="sm" />
 						<div class="min-w-0">
-							<p class="truncate text-sm font-semibold text-foreground">{req.hospital}</p>
+							<p class="truncate text-sm font-extrabold text-foreground">{req.hospital}</p>
 							<p class="text-sm text-muted-foreground">{req.city} · {req.units_needed} {t.units}</p>
 							<p class="mt-1 text-xs text-muted-foreground">{ago(req.created_at)}</p>
 						</div>

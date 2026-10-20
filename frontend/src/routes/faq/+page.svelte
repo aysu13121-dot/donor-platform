@@ -35,7 +35,7 @@
 	</div>
 
 	<div class="space-y-3">
-		{#each FAQS as faq, i}
+		{#each FAQS as faq, i (i)}
 			<div class="rounded-xl border border-border bg-card overflow-hidden">
 				<button
 					type="button"
