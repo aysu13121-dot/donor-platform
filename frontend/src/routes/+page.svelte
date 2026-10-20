@@ -26,6 +26,7 @@
 	const T = {
 		az: {
 			eyebrow: 'AZƏRBAYCAN · QAN DONORU PLATFORMASI',
+			find: 'Donor tap',
 			see: 'Sorğuya bax',
 			all: 'Bütün sorğular',
 			min: (n) => `${n} dəq əvvəl`,
@@ -34,6 +35,7 @@
 		},
 		en: {
 			eyebrow: 'AZERBAIJAN · BLOOD DONOR PLATFORM',
+			find: 'Find a donor',
 			see: 'See request',
 			all: 'All requests',
 			min: (n) => `${n} min ago`,
@@ -113,11 +115,12 @@
 					{#if !isAuthenticated}
 						<Button href="/signup" variant="light" size="lg">{m.hero_cta1()}</Button>
 					{/if}
-					<Button href="/#blood-types" variant="outlineLight" size="lg">
+					<Button href="/find" variant="outlineLight" size="lg">
 						<Search aria-hidden="true" />
-						{m.hero_cta2()}
+						{t.find}
 					</Button>
 				</div>
+				<a href="/#blood-types" class="rise-4 mt-5 inline-block text-sm font-semibold text-white/85 underline underline-offset-4 hover:text-white">{m.hero_cta2()}</a>
 			</div>
 
 			<div class="rise-3 w-full max-w-md justify-self-center rounded-3xl bg-card p-6 text-card-foreground shadow-pop md:justify-self-end">

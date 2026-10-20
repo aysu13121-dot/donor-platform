@@ -2,11 +2,13 @@
 	import { BLOOD_TYPES } from '$lib/constants';
 	import { cn } from '$lib/utils';
 
-	// Qan qrupu filtri: "hamısı" + 8 qrup düymə kimi. Eyni qrupa təkrar basmaq lazım deyil -
-	// "hamısı" düyməsi filtri təmizləyir.
-	let { value = '', onChange, allLabel = 'All' } = $props();
+	// Qan qrupu seçimi düymələr kimi. `showAll` açıqdırsa "hamısı" düyməsi filtri təmizləyir.
+	let { value = '', onChange, allLabel = 'All', showAll = true } = $props();
 
-	const options = $derived([{ v: '', l: allLabel }, ...BLOOD_TYPES.map((b) => ({ v: b, l: b }))]);
+	const options = $derived([
+		...(showAll ? [{ v: '', l: allLabel }] : []),
+		...BLOOD_TYPES.map((b) => ({ v: b, l: b }))
+	]);
 </script>
 
 <div class="flex flex-wrap gap-1.5" role="group">
