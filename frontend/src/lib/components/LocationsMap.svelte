@@ -35,7 +35,7 @@
 
 		for (const group of groups) {
 			const items = group.items
-				.map((it) => `<li style="margin-bottom:4px;"><strong>${it.name}</strong><br><span style="color:#71717a;">${it.address}</span></li>`)
+				.map((it) => `<li style="margin-bottom:4px;"><strong>${it.name}</strong>${it.address ? `<br><span style="color:#71717a;">${it.address}</span>` : ''}</li>`)
 				.join('');
 			L.marker([group.lat, group.lng], { icon })
 				.addTo(map)
@@ -50,7 +50,7 @@
 	});
 </script>
 
-<div bind:this={container} class="h-80 w-full rounded-xl border border-border [&_.leaflet-container]:h-full [&_.leaflet-container]:w-full [&_.leaflet-container]:rounded-xl [&_.leaflet-container]:font-sans"></div>
+<div bind:this={container} class="isolate h-80 w-full overflow-hidden rounded-2xl border border-border [&_.leaflet-container]:h-full [&_.leaflet-container]:w-full [&_.leaflet-container]:rounded-xl [&_.leaflet-container]:font-sans"></div>
 
 <style>
 	/* Qaranlıq temada xəritə kaşılarını (tile) tərsinə çevirib uyğunlaşdırırıq -
@@ -60,7 +60,7 @@
 	}
 	:global(.dark) :global(.leaflet-popup-content-wrapper),
 	:global(.dark) :global(.leaflet-popup-tip) {
-		background: #18181b;
-		color: #e4e4e7;
+		background: #1e1317;
+		color: #fbf3f4;
 	}
 </style>

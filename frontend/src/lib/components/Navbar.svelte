@@ -24,7 +24,7 @@
 
 <nav class="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
 	<div class="h-1 bg-primary"></div>
-	<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-3">
+	<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-4">
 		<BrandLogo class="lg:justify-self-start" />
 
 		<ul class="hidden items-center gap-1 lg:flex lg:justify-self-center">
@@ -33,7 +33,7 @@
 					<a
 						href={link.href}
 						class={cn(
-							'rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors',
+							'whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-semibold transition-colors',
 							isActive(link.href)
 								? 'bg-accent text-accent-foreground'
 								: 'text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -45,7 +45,7 @@
 			{/each}
 		</ul>
 
-		<div class="hidden items-center gap-3 lg:flex lg:justify-self-end">
+		<div class="hidden items-center gap-2 lg:flex lg:justify-self-end">
 			<div class="flex items-center gap-1">
 				<ThemeToggle />
 				<LanguageSwitch />

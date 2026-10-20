@@ -1,8 +1,8 @@
 import { fetchApi } from '$lib/server/api.js';
 import { bloodCompatibility } from '$lib/constants';
 
-// Köhnə təcili elanlar görünməsin deyə 72 saatdan köhnələr gizlədilir.
-const MAX_AGE_HOURS = 72;
+// Köhnə təcili elanlar görünməsin deyə 14 gündən köhnələr gizlədilir.
+const MAX_AGE_HOURS = 24 * 14;
 
 export async function load(event) {
 	const { url } = event;

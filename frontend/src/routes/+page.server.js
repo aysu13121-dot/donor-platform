@@ -1,7 +1,7 @@
 import { fetchApi } from '$lib/server/api.js';
 
-// Köhnə təcili elanlar landing-də görünməsin deyə 72 saatdan köhnələr gizlədilir.
-const MAX_AGE_HOURS = 72;
+// Köhnə təcili elanlar landing-də görünməsin deyə 14 gündən köhnələr gizlədilir.
+const MAX_AGE_HOURS = 24 * 14;
 
 export async function load(event) {
 	const [statsRes, urgentRes] = await Promise.all([
