@@ -17,9 +17,12 @@
 		const io = new IntersectionObserver((entries) => {
 			if (!entries[0].isIntersecting) return;
 			io.disconnect();
-			const start = performance.now();
+			// Başlanğıc vaxtı ilk kadrın vaxtından götürülür: bəzən rAF vaxtı
+			// performance.now()-dan əvvəl olur və mənfi rəqəm göstərirdi.
+			let start = null;
 			const tick = (now) => {
-				const p = Math.min(1, (now - start) / 1100);
+				if (start === null) start = now;
+				const p = Math.min(1, Math.max(0, (now - start) / 1100));
 				animated = Math.round(target * (1 - Math.pow(1 - p, 3)));
 				if (p < 1) requestAnimationFrame(tick);
 			};
