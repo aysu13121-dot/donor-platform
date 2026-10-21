@@ -1,4 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
+import { fetchWithWake } from '$lib/server/wake.js';
 
 // `+page.server.js` `load` funksiyaları üçün Flask API müştərisi. Brauzerin
 // cookie jar-ı server-side yoxdur, ona görə auth cookie `event.cookies`-dən
@@ -13,11 +14,12 @@ export async function fetchApi(event, path, { method = 'GET', body } = {}) {
 	if (token) headers['cookie'] = `access_token_cookie=${token}`;
 
 	try {
-		const res = await event.fetch(`${PUBLIC_API_URL}${path}`, {
-			method,
-			headers,
-			body: body !== undefined ? JSON.stringify(body) : undefined
-		});
+		const res = await fetchWithWake(
+			event.fetch,
+			`${PUBLIC_API_URL}${path}`,
+			{ method, headers, body: body !== undefined ? JSON.stringify(body) : undefined },
+			{ tries: 6, delayMs: 4000 }
+		);
 		const data = await res.json().catch(() => null);
 		return { ok: res.ok, status: res.status, data };
 	} catch {

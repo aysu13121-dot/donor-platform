@@ -1,0 +1,14 @@
+# Render-in pulsuz planı 15 dəqiqə boş qalan servisi yatırdır. Bakı vaxtı ilə
+# 08:00-20:00 arası hər 10 dəqiqədən bir hər iki servisi "dürtürük".
+name: keep-awake
+on:
+  schedule:
+    - cron: '*/10 4-16 * * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -o /dev/null -w "web %{http_code}\n" --max-time 120 https://webdonoraz.onrender.com/ || true
+          curl -s -o /dev/null -w "api %{http_code}\n" --max-time 120 https://donoraz.onrender.com/api/stats || true

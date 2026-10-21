@@ -1,4 +1,5 @@
 import { PUBLIC_API_URL } from '$env/static/public';
+import { fetchWithWake } from '$lib/server/wake.js';
 
 // Brauzer bütün `/api/*` sorğularını (login, signup, profil/sorğu
 // mutasiyaları) birbaşa Flask-a yox, HƏMİŞƏ frontend-in öz domeninə göndərsin
@@ -27,11 +28,8 @@ async function proxy(event) {
 	if (csrfToken) headers.set('x-csrf-token', csrfToken);
 
 	const hasBody = !['GET', 'HEAD'].includes(request.method);
-	const res = await event.fetch(target, {
-		method: request.method,
-		headers,
-		body: hasBody ? await request.arrayBuffer() : undefined
-	});
+	const body = hasBody ? await request.arrayBuffer() : undefined;
+	const res = await fetchWithWake(event.fetch, target, { method: request.method, headers, body });
 
 	const outHeaders = new Headers();
 	const responseContentType = res.headers.get('content-type');
