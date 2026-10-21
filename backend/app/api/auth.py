@@ -22,7 +22,7 @@ def _auth_response(message, user, status):
 
 @auth_bp.post('/signup')
 @auth_bp.input(SignupSchema)
-@limiter.limit('10 per minute')
+@limiter.limit('60 per minute')
 def signup(json_data):
     if User.query.filter_by(email=json_data['email']).first():
         return jsonify({'error': 'Bu e-poçt ünvanı ilə artıq istifadəçi var.'}), 409
@@ -45,7 +45,7 @@ def signup(json_data):
 
 @auth_bp.post('/signin')
 @auth_bp.input(SigninSchema)
-@limiter.limit('10 per minute')
+@limiter.limit('60 per minute')
 def signin(json_data):
     user = User.query.filter_by(email=json_data['email']).first()
     if not user or not user.check_password(json_data['password']):

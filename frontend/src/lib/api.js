@@ -54,6 +54,7 @@ async function request(path, { method = 'GET', body } = {}) {
 	}
 
 	const data = await res.json().catch(() => null);
+	if (res.status === 429) throw new ApiError('Çox sayda cəhd oldu. Bir dəqiqə gözləyib yenidən yoxlayın.', 429);
 	if (!res.ok) throw new ApiError(extractErrorMessage(data), res.status);
 	return data;
 }
