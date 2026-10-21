@@ -18,7 +18,7 @@ export async function fetchApi(event, path, { method = 'GET', body } = {}) {
 			event.fetch,
 			`${PUBLIC_API_URL}${path}`,
 			{ method, headers, body: body !== undefined ? JSON.stringify(body) : undefined },
-			{ tries: 6, delayMs: 4000 }
+			{ tries: 2, delayMs: 2000 }
 		);
 		const data = await res.json().catch(() => null);
 		return { ok: res.ok, status: res.status, data };
